@@ -1,5 +1,5 @@
-import { ActionButton, BarberImage, Background, Crown, FloatingCrowns, ImageContainer, Title } from './styles'
-import imagem_barbearia2 from './imagem_barbearia2.jpg'
+import { ActionButton, BarberImage, Background, BarberPole, Content, Crown, FloatingCrowns, ImageContainer, LeftPanel, PoleColumn, RightPanel, Title } from './styles'
+import LogoKingsBarber from './LogoKingsBarber.png'
 
 const crowns = [
   { id: 1, symbol: '👑', size: 44, left: '8%', top: '12%', duration: 12, delay: 0 },
@@ -28,13 +28,23 @@ function Home() {
         ))}
       </FloatingCrowns>
 
-      <div>
-        <Title>KingsBarber</Title>
-      </div>
-      <ImageContainer>
-        <BarberImage src={imagem_barbearia2} alt="Barbearia" />
-      </ImageContainer>
-      <ActionButton onClick={() => window.location.href = '/services'}>Agendar Corte</ActionButton>
+      <Content>
+        <LeftPanel>
+          <Title>KingsBarber</Title>
+          <p>Bem-vindo ao Site das KingsBarber com estilo e atitude. Conheça nossos cortes com atendimento de alto nível.</p>
+          <ActionButton onClick={() => window.location.href = '/services'}>Agendar Corte</ActionButton>
+        </LeftPanel>
+
+        <PoleColumn>
+          <BarberPole />
+        </PoleColumn>
+
+        <RightPanel>
+          <ImageContainer>
+            <BarberImage src={LogoKingsBarber} alt="Logo KingsBarber" />
+          </ImageContainer>
+        </RightPanel>
+      </Content>
     </Background>
   )
 }
