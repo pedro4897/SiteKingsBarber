@@ -79,14 +79,14 @@ export const Content = styled.div`
 
 export const LeftPanel = styled.div`
   position: relative;
-  background: #393f49;
+  background: #3c3c35;
   border-radius: 36px;
   padding: 3rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: #f5f5f5;
+  color: #e2d4d4;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
   clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
 `
