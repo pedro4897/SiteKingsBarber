@@ -32,7 +32,15 @@ function Home() {
         <LeftPanel>
           <Title>KingsBarber</Title>
           <p>Bem-vindo ao Site das KingsBarber com estilo e atitude. Conheça nossos cortes com atendimento de alto nível.</p>
-          <ActionButton onClick={() => window.location.href = '/services'}>Agendar Corte</ActionButton>
+          <ActionButton
+            onClick={() => {
+              const basePath = window.location.pathname.replace(/\/$/, '')
+              window.history.pushState({}, '', `${basePath}/services`)
+              window.dispatchEvent(new PopStateEvent('popstate'))
+            }}
+          >
+            Agendar Corte
+          </ActionButton>
         </LeftPanel>
 
         <PoleColumn>
