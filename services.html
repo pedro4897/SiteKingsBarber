@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title ">KingsBarber - Serviços</title>
+  </head>
+  <body bgcolor="#0f0f10" text="#f5f5f5">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td>
+          <table width="100%" cellpadding="18" cellspacing="0" border="0">
+            <tr>
+              <td align="left">
+                <input
+                  type="button"
+                  value="Voltar"
+                  onclick="goHome()"
+                  style="background:#1f1f22; color:#f5f5f5; border:1px solid #3a3a3d; border-radius:8px; padding:10px 16px; font-size:14px; cursor:pointer;"
+                />
+              </td>
+              <td align="center">
+                <font face="Arial, Helvetica, sans-serif" size="10" color="#f5c76a"><b>KingsBarber</b></font>
+              </td>
+              <td width="120">&nbsp;</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center" style="padding-top:24px; padding-bottom:18px;">
+          <table width="90%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td align="left">
+                <font face="Arial, Helvetica, sans-serif" size="2" color="#d3d3d3">Agende seu momento</font><br />
+                <font face="Arial, Helvetica, sans-serif" size="6" color="#ffffff"><b>Escolha o seu corte</b></font><br />
+                <font face="Arial, Helvetica, sans-serif" size="3" color="#b0b0b0">Selecione um serviço para continuar o agendamento.</font>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center" style="padding-bottom:40px;">
+          <table width="90%" cellpadding="16" cellspacing="18" border="0">
+            <tr>
+              <td width="33%" valign="top" bgcolor="#17171a" style="border:1px solid #2a2a2d; border-radius:14px; padding:20px;">
+                <font face="Arial, Helvetica, sans-serif" size="4" color="#ffffff"><b>Corte clássico</b></font><br /><br />
+                <font face="Arial, Helvetica, sans-serif" size="2" color="#d0d0d0">Acabamento preciso e atemporal para todos os estilos.</font><br /><br />
+                <font face="Arial, Helvetica, sans-serif" size="5" color="#f5c76a"><b>R$ 45</b></font><br /><br />
+                <button type="button" onclick="selectService('Corte clássico')" style="background:#f5c76a; color:#111; border:none; border-radius:10px; padding:12px 18px; font-weight:bold; cursor:pointer; width:100%;">
+                  Escolher horário
+                </button>
+              </td>
+
+              <td width="33%" valign="top" bgcolor="#17171a" style="border:1px solid #2a2a2d; border-radius:14px; padding:20px;">
+                <font face="Arial, Helvetica, sans-serif" size="4" color="#ffffff"><b>Corte + barba</b></font><br /><br />
+                <font face="Arial, Helvetica, sans-serif" size="2" color="#d0d0d0">Corte completo com desenho e cuidado especial para a barba.</font><br /><br />
+                <font face="Arial, Helvetica, sans-serif" size="5" color="#f5c76a"><b>R$ 70</b></font><br /><br />
+                <button type="button" onclick="selectService('Corte + barba')" style="background:#f5c76a; color:#111; border:none; border-radius:10px; padding:12px 18px; font-weight:bold; cursor:pointer; width:100%;">
+                  Escolher horário
+                </button>
+              </td>
+
+              <td width="33%" valign="top" bgcolor="#17171a" style="border:1px solid #2a2a2d; border-radius:14px; padding:20px;">
+                <font face="Arial, Helvetica, sans-serif" size="4" color="#ffffff"><b>Barba premium</b></font><br /><br />
+                <font face="Arial, Helvetica, sans-serif" size="2" color="#d0d0d0">Toalha quente, alinhamento e finalização com produtos premium.</font><br /><br />
+                <font face="Arial, Helvetica, sans-serif" size="5" color="#f5c76a"><b>R$ 35</b></font><br /><br />
+                <button type="button" onclick="selectService('Barba premium')" style="background:#f5c76a; color:#111; border:none; border-radius:10px; padding:12px 18px; font-weight:bold; cursor:pointer; width:100%;">
+                  Escolher horário
+                </button>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <script>
+      function goHome() {
+        window.history.pushState({}, '', window.location.pathname.replace(/\/services\/?$/, '') || '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+
+      function selectService(serviceName) {
+        alert('Serviço selecionado: ' + serviceName);
+      }
+    </script>
+  </body>
+</html>

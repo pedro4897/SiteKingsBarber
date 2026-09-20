@@ -1,5 +1,5 @@
 import { ActionButton, BarberImage, Background, BarberPole, Content, Crown, FloatingCrowns, ImageContainer, LeftPanel, PoleColumn, RightPanel, Title } from './styles'
-import LogoKingsBarber from './LogoKingsBarber.png'
+import LogoKings from './Logo Kings Barber.png'
 
 const crowns = [
   { id: 1, symbol: '👑', size: 44, left: '8%', top: '12%', duration: 12, delay: 0 },
@@ -49,7 +49,7 @@ function Home() {
 
         <RightPanel>
           <ImageContainer>
-            <BarberImage src={LogoKingsBarber} alt="Logo KingsBarber" />
+            <BarberImage src={LogoKings} alt="Logo da KingsBarber" />
           </ImageContainer>
         </RightPanel>
       </Content>

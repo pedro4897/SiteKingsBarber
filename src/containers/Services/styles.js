@@ -1,13 +1,54 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+
+const floatAcross = keyframes`
+  0% {
+    transform: translate3d(-10vw, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.28;
+  }
+  50% {
+    transform: translate3d(50vw, -20vh, 0) rotate(180deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(115vw, -35vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+`
 
 export const BookingPage = styled.main`
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
   padding: 2rem clamp(1.25rem, 5vw, 5rem);
   color: #f5ead7;
-  background: radial-gradient(circle at top right, #45321f 0, #171312 42%, #0e0d0c 100%);
+  background: #181a1d;
+`
+
+export const FloatingCrowns = styled.div`
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+`
+
+export const Crown = styled.span`
+  position: absolute;
+  display: inline-block;
+  font-size: ${({ $size }) => $size}px;
+  opacity: 0;
+  color: rgba(255, 215, 0, 0.9);
+  text-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
+  animation: ${floatAcross} ${({ $duration }) => $duration}s linear infinite;
+  animation-delay: ${({ $delay }) => $delay}s;
 `
 
 export const Header = styled.header`
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -37,6 +78,8 @@ export const BackButton = styled.button`
 `
 
 export const Intro = styled.section`
+  position: relative;
+  z-index: 2;
   max-width: 1120px;
   margin: clamp(4rem, 10vh, 7rem) auto 3rem;
 
@@ -62,6 +105,8 @@ export const Intro = styled.section`
 `
 
 export const BookingGrid = styled.section`
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;

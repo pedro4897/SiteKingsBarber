@@ -88,7 +88,9 @@ export const LeftPanel = styled.div`
   justify-content: center;
   color: #e2d4d4;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
+ 
   clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+
 `
 
 export const PoleColumn = styled.div`
