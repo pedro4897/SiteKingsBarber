@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { createGlobalStyle } from 'styled-components'
 import Home from './containers/Home'
 import Services from './containers/Services'
+import { services } from './containers/Services/services'
+import Booking from './containers/Services/Booking'
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -23,15 +25,28 @@ const GlobalStyle = createGlobalStyle`
 `
 
 function App() {
-  const [path, setPath] = useState(window.location.pathname)
+  const [route, setRoute] = useState(window.location.hash)
 
   useEffect(() => {
-    const handleNavigation = () => setPath(window.location.pathname)
-    window.addEventListener('popstate', handleNavigation)
-    return () => window.removeEventListener('popstate', handleNavigation)
+    const handleRouteChange = () => setRoute(window.location.hash)
+    window.addEventListener('hashchange', handleRouteChange)
+    return () => window.removeEventListener('hashchange', handleRouteChange)
   }, [])
 
-  return path.endsWith('/services') ? <Services /> : <Home />
+  if (route.startsWith('#/agendamento')) {
+    const query = route.split('?')[1] ?? ''
+    const requestedService = new URLSearchParams(query).get('servico')
+    const service = services.find((item) => item.name === requestedService) ?? services[0]
+
+    return <Booking service={service} />
+  }
+
+  return (
+    <>
+      <Home />
+      <Services />
+    </>
+  )
 }
 
 createRoot(document.getElementById('root')).render(

@@ -1,17 +1,17 @@
 import {
-  BackButton,
   BookingButton,
   BookingCard,
   BookingGrid,
   BookingPage,
   Crown,
-  Header,
   Intro,
   Price,
+  ServiceImage,
   ServiceDescription,
   ServiceTitle,
   FloatingCrowns
 } from './styles'
+import { services } from './services'
 
 const crowns = [
   { id: 1, symbol: '👑', size: 44, left: '8%', top: '12%', duration: 12, delay: 0 },
@@ -23,30 +23,7 @@ const crowns = [
   { id: 7, symbol: '👑', size: 36, left: '76%', top: '66%', duration: 13, delay: 4.1 }
 ]
 
-const services = [
-  {
-    name: 'Corte clássico',
-    description: 'Acabamento preciso e atemporal para todos os estilos.',
-    price: 'R$ 45'
-  },
-  {
-    name: 'Corte + barba',
-    description: 'Corte completo com desenho e cuidado especial para a barba.',
-    price: 'R$ 70'
-  },
-  {
-    name: 'Barba premium',
-    description: 'Toalha quente, alinhamento e finalização com produtos premium.',
-    price: 'R$ 35'
-  }
-]
-
 function Services() {
-  const goHome = () => {
-    window.history.pushState({}, '', window.location.pathname.replace(/\/services\/?$/, '') || '/')
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  }
-
   return (
     <BookingPage>
       <FloatingCrowns>
@@ -63,11 +40,6 @@ function Services() {
         ))}
       </FloatingCrowns>
 
-      <Header>
-        <BackButton onClick={goHome}>Voltar</BackButton>
-        <span>KingsBarber</span>
-      </Header>
-
       <Intro>
         <p>Agende seu momento</p>
         <h1>Escolha o seu corte</h1>
@@ -77,10 +49,16 @@ function Services() {
       <BookingGrid>
         {services.map((service) => (
           <BookingCard key={service.name}>
+            <ServiceImage src={service.image} alt={service.name} />
             <ServiceTitle>{service.name}</ServiceTitle>
             <ServiceDescription>{service.description}</ServiceDescription>
             <Price>{service.price}</Price>
-            <BookingButton type="button" onClick={() => alert(`Serviço selecionado: ${service.name}`)}>
+            <BookingButton
+              type="button"
+              onClick={() => {
+                window.location.hash = `/agendamento?servico=${encodeURIComponent(service.name)}`
+              }}
+            >
               Escolher horário
             </BookingButton>
           </BookingCard>

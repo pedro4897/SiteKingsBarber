@@ -1,4 +1,4 @@
-import { ActionButton, BarberImage, Background, BarberPole, Content, Crown, FloatingCrowns, ImageContainer, LeftPanel, PoleColumn, RightPanel, Title } from './styles'
+import { BarberImage, Background, BarberPole, Content, Crown, FloatingCrowns, ImageContainer, LeftPanel, PoleColumn, RightPanel, Title } from './styles'
 import LogoKings from './Logo Kings Barber.png'
 
 const crowns = [
@@ -32,15 +32,6 @@ function Home() {
         <LeftPanel>
           <Title>KingsBarber</Title>
           <p>Bem-vindo ao Site das KingsBarber com estilo e atitude. Conheça nossos cortes com atendimento de alto nível.</p>
-          <ActionButton
-            onClick={() => {
-              const basePath = window.location.pathname.replace(/\/$/, '')
-              window.history.pushState({}, '', `${basePath}/services`)
-              window.dispatchEvent(new PopStateEvent('popstate'))
-            }}
-          >
-            Agendar Corte
-          </ActionButton>
         </LeftPanel>
 
         <PoleColumn>
