@@ -5,6 +5,8 @@ import Home from './containers/Home'
 import Services from './containers/Services'
 import { services } from './containers/Services/services'
 import Booking from './containers/Services/Booking'
+import Account from './containers/Account'
+import Navbar from './components/Navbar'
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -41,10 +43,18 @@ function App() {
     return <Booking service={service} />
   }
 
+  const currentRoute = route.startsWith('#/servicos')
+    ? 'servicos'
+    : route.startsWith('#/conta')
+      ? 'conta'
+      : 'home'
+
   return (
     <>
-      <Home />
-      <Services />
+      <Navbar activeRoute={currentRoute} />
+      {currentRoute === 'servicos' && <Services />}
+      {currentRoute === 'conta' && <Account />}
+      {currentRoute === 'home' && <Home />}
     </>
   )
 }

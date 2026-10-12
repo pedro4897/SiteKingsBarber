@@ -31,7 +31,7 @@ function Home() {
       <Content>
         <LeftPanel>
           <Title>KingsBarber</Title>
-          <p>Bem-vindo ao Site das KingsBarber com estilo e atitude. Conheça nossos cortes com atendimento de alto nível.</p>
+          <p>Bem-vindo ao site da KingsBarber, com estilo e atitude. Conheça nossos serviços e tenha um atendimento de alto nível.</p>
         </LeftPanel>
 
         <PoleColumn>

@@ -61,7 +61,7 @@ export const Background = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 6rem 1rem 2rem;
   background: #181a1d;
 `
 
@@ -71,16 +71,25 @@ export const Content = styled.div`
   width: min(1120px, 100%);
   max-width: 1200px;
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(100px, 120px) minmax(320px, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 68px minmax(0, 1fr);
+  gap: 0;
   min-height: 70vh;
   align-items: stretch;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 `
 
 export const LeftPanel = styled.div`
   position: relative;
+  z-index: 1;
+  width: calc(100% + 24px);
+  margin-right: -24px;
   background: #3c3c35;
-  border-radius: 36px;
+  border-radius: 24px 0 0 24px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 100%, 0 100%);
   padding: 3rem;
   overflow: hidden;
   display: flex;
@@ -88,24 +97,35 @@ export const LeftPanel = styled.div`
   justify-content: center;
   color: #e2d4d4;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
- 
-  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
 
+  @media (max-width: 700px) {
+    width: 100%;
+    margin-right: 0;
+    min-height: 35vh;
+    padding: 2rem;
+    border-radius: 24px;
+    clip-path: none;
+  }
 `
 
 export const PoleColumn = styled.div`
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+
+  @media (max-width: 700px) {
+    display: none;
+  }
 `
 
 export const BarberPole = styled.div`
-  width: 34px;
-  height: 90%;
-  min-height: 420px;
-  max-height: 84vh;
-  border-radius: 999px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
   background: repeating-linear-gradient(
     135deg,
     #fff 0,
@@ -115,45 +135,36 @@ export const BarberPole = styled.div`
     #0f56a3 24px,
     #0f56a3 36px
   );
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 18px 40px rgba(0, 0, 0, 0.2);
-  transform: rotate(14deg);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+  clip-path: polygon(35% 0, 100% 0, 65% 100%, 0 100%);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 48px;
-    height: 16px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.92);
-  }
-
-  &::before {
-    top: -10px;
-  }
-
-  &::after {
-    bottom: -10px;
-  }
 `
 
 export const RightPanel = styled.div`
   position: relative;
+  z-index: 1;
+  width: calc(100% + 24px);
+  margin-left: -24px;
   background: #121416;
-  border-radius: 36px;
+  border-radius: 0 24px 24px 0;
+  clip-path: polygon(24px 0, 100% 0, 100% 100%, 0 100%);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
-  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
   padding: 2rem;
+
+  @media (max-width: 700px) {
+    width: 100%;
+    margin-left: 0;
+    min-height: 35vh;
+    border-radius: 24px;
+    clip-path: none;
+  }
 `
 
 export const FloatingCrowns = styled.div`

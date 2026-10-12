@@ -22,7 +22,7 @@ export const BookingPage = styled.main`
   position: relative;
   overflow: hidden;
   min-height: 100vh;
-  padding: 2rem clamp(1.25rem, 5vw, 5rem);
+  padding: 6rem clamp(1.25rem, 5vw, 5rem) 2rem;
   color: #f5ead7;
   background: #181a1d;
 `
