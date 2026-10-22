@@ -18,13 +18,14 @@ const floatAcross = keyframes`
   }
 `
 
-export const BookingPage = styled.main`
+export const BookingPage = styled.section`
   position: relative;
   overflow: hidden;
   min-height: 100vh;
-  padding: 6rem clamp(1.25rem, 5vw, 5rem) 2rem;
+  padding: 3rem clamp(1.25rem, 5vw, 5rem) 2rem;
   color: #f5ead7;
   background: #181a1d;
+  scroll-margin-top: 5.5rem;
 `
 
 export const FloatingCrowns = styled.div`

@@ -3,17 +3,31 @@ import styled from 'styled-components'
 export const Navigation = styled.nav`
   position: fixed;
   top: 0;
+  bottom: 0;
+  left: 0;
   z-index: 10;
   display: flex;
-  width: 100%;
-  min-height: 4.5rem;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 0.75rem clamp(1rem, 5vw, 4rem);
-  border-bottom: 1px solid rgba(214, 168, 79, 0.2);
+  width: 15rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem 1.25rem;
+  border-right: 1px solid rgba(214, 168, 79, 0.2);
   background: rgba(24, 26, 29, 0.94);
   backdrop-filter: blur(12px);
+
+  @media (max-width: 700px) {
+    bottom: auto;
+    width: 100%;
+    min-height: 5rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0.65rem 0.5rem;
+    border-right: 0;
+    border-bottom: 1px solid rgba(214, 168, 79, 0.2);
+  }
 `
 
 export const Brand = styled.a`
@@ -23,16 +37,29 @@ export const Brand = styled.a`
   letter-spacing: 0.04em;
   text-decoration: none;
   white-space: nowrap;
+
+  @media (max-width: 700px) {
+    display: none;
+  }
 `
 
 export const NavLinks = styled.div`
   display: flex;
-  align-items: center;
-  gap: clamp(0.25rem, 2vw, 1.5rem);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+
+  @media (max-width: 700px) {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.1rem;
+  }
 `
 
 export const NavLink = styled.a`
-  padding: 0.55rem 0.75rem;
+  padding: 0.7rem 0.75rem;
   border-radius: 4px;
   color: ${({ $active }) => ($active ? '#f4d48a' : '#f5ead7')};
   background: ${({ $active }) => ($active ? 'rgba(214, 168, 79, 0.12)' : 'transparent')};
@@ -45,8 +72,9 @@ export const NavLink = styled.a`
     color: #f4d48a;
   }
 
-  @media (max-width: 420px) {
-    padding: 0.5rem 0.4rem;
-    font-size: 0.85rem;
+  @media (max-width: 700px) {
+    padding: 0.5rem 0.35rem;
+    font-size: clamp(0.68rem, 2.6vw, 0.85rem);
+    white-space: nowrap;
   }
 `

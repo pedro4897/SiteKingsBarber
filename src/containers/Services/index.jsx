@@ -25,7 +25,7 @@ const crowns = [
 
 function Services() {
   return (
-    <BookingPage>
+    <BookingPage id="servicos">
       <FloatingCrowns>
         {crowns.map((crown) => (
           <Crown

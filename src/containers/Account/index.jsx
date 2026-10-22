@@ -25,7 +25,7 @@ function Account() {
   }
 
   return (
-    <AccountPage>
+    <AccountPage id="conta">
       <AccountCard>
         <AccountTitle>{isCreatingAccount ? 'Crie sua conta' : 'Acesse sua conta'}</AccountTitle>
         <AccountSubtitle>

@@ -1,13 +1,14 @@
 import styled from 'styled-components'
 
-export const AccountPage = styled.main`
+export const AccountPage = styled.section`
   display: flex;
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  padding: 7rem 1.25rem 2rem;
+  padding: 3rem 1.25rem 2rem;
   color: #f5ead7;
   background: #181a1d;
+  scroll-margin-top: 5.5rem;
 `
 
 export const AccountCard = styled.section`

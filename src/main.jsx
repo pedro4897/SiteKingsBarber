@@ -1,16 +1,31 @@
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createGlobalStyle } from 'styled-components'
+import { createGlobalStyle, styled } from 'styled-components'
 import Home from './containers/Home'
 import Services from './containers/Services'
 import { services } from './containers/Services/services'
 import Booking from './containers/Services/Booking'
 import Account from './containers/Account'
+import About from './containers/About'
 import Navbar from './components/Navbar'
+
+const PageContent = styled.div`
+  min-width: 0;
+  margin-left: 15rem;
+
+  @media (max-width: 700px) {
+    margin-left: 0;
+    padding-top: 5rem;
+  }
+`
 
 const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   html, body, #root {
@@ -43,18 +58,23 @@ function App() {
     return <Booking service={service} />
   }
 
-  const currentRoute = route.startsWith('#/servicos')
+  const activeRoute = route === '#servicos' || route === '#/servicos'
     ? 'servicos'
-    : route.startsWith('#/conta')
+    : route === '#conta' || route === '#/conta'
       ? 'conta'
-      : 'home'
+      : route === '#sobre-nos'
+        ? 'sobre-nos'
+        : 'home'
 
   return (
     <>
-      <Navbar activeRoute={currentRoute} />
-      {currentRoute === 'servicos' && <Services />}
-      {currentRoute === 'conta' && <Account />}
-      {currentRoute === 'home' && <Home />}
+      <Navbar activeRoute={activeRoute} />
+      <PageContent>
+        <Home />
+        <Services />
+        <About />
+        <Account />
+      </PageContent>
     </>
   )
 }

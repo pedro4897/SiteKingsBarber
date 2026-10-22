@@ -89,7 +89,7 @@ function Booking({ service }) {
   const [confirmedAppointment, setConfirmedAppointment] = useState(null)
 
   const goBack = () => {
-    window.location.hash = '/servicos'
+    window.location.hash = 'servicos'
   }
 
   const handleSubmit = (event) => {

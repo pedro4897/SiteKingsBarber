@@ -13,7 +13,7 @@ const crowns = [
 
 function Home() {
   return (
-    <Background>
+    <Background id="home">
       <FloatingCrowns>
         {crowns.map((crown) => (
           <Crown

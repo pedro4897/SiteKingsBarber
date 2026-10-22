@@ -61,8 +61,9 @@ export const Background = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6rem 1rem 2rem;
+  padding: 2rem 1rem;
   background: #181a1d;
+  scroll-margin-top: 5.5rem;
 `
 
 export const Content = styled.div`
