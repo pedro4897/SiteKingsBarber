@@ -11,11 +11,11 @@ import Navbar from './components/Navbar'
 
 const PageContent = styled.div`
   min-width: 0;
-  margin-left: 15rem;
+  margin-left: 11rem;
 
   @media (max-width: 700px) {
     margin-left: 0;
-    padding-top: 5rem;
+    padding-top: 8rem;
   }
 `
 
@@ -37,7 +37,7 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Times New Roman', Times, serif;
   }
 `
 

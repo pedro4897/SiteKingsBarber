@@ -34,21 +34,21 @@ export const Title = styled.h1`
 
 export const ImageContainer = styled.div`
   position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 52vh;
+  width: min(100%, 420px);
+  height: min(100%, 520px);
+  min-height: 0;
+  padding: 1rem;
   overflow: hidden;
-  border-radius: 0;
-  background: transparent;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
 `
 
 export const BarberImage = styled.img`
-  width: 70%;
-  height: 80%;
-  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   object-position: center;
 `
 
@@ -149,7 +149,7 @@ export const RightPanel = styled.div`
   z-index: 1;
   width: calc(100% + 24px);
   margin-left: -24px;
-  background: #121416;
+  background: #000;
   border-radius: 0 24px 24px 0;
   clip-path: polygon(24px 0, 100% 0, 100% 100%, 0 100%);
   overflow: hidden;

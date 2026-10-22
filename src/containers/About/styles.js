@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 export const AboutPage = styled.section`
+  font-family: 'Times New Roman', Times, serif;
   display: flex;
   min-height: 75vh;
   align-items: center;
@@ -14,6 +15,7 @@ export const AboutContent = styled.div`
   max-width: 760px;
 
   > p {
+    font-family: 'Times New Roman', Times, serif;
     margin: 0 0 0.75rem;
     color: #d6a84f;
     font-size: 0.85rem;
