@@ -30,6 +30,12 @@ export const Title = styled.h1`
   margin-bottom: 2rem;
   position: relative;
   z-index: 1;
+
+  @media (max-width: 700px) {
+    margin: 0 0 1rem;
+    font-size: clamp(1rem, 4.5vw, 1.6rem);
+    text-align: center;
+  }
 `
 
 export const ImageContainer = styled.div`
@@ -64,6 +70,10 @@ export const Background = styled.div`
   padding: 2rem 1rem;
   background: #181a1d;
   scroll-margin-top: 5.5rem;
+
+  @media (max-width: 700px) {
+    padding: 1.25rem 0.5rem;
+  }
 `
 
 export const Content = styled.div`
@@ -78,8 +88,9 @@ export const Content = styled.div`
   align-items: stretch;
 
   @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) clamp(18px, 6vw, 36px) minmax(0, 1fr);
+    min-height: clamp(300px, 70svh, 600px);
   }
 `
 
@@ -100,12 +111,18 @@ export const LeftPanel = styled.div`
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
 
   @media (max-width: 700px) {
-    width: 100%;
-    margin-right: 0;
-    min-height: 35vh;
-    padding: 2rem;
-    border-radius: 24px;
-    clip-path: none;
+    width: calc(100% + 12px);
+    margin-right: -12px;
+    min-height: 0;
+    padding: clamp(0.65rem, 3vw, 1.25rem);
+    border-radius: 14px 0 0 14px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+
+    p {
+      margin: 0;
+      font-size: clamp(0.7rem, 2.8vw, 0.9rem);
+      line-height: 1.4;
+    }
   }
 `
 
@@ -118,7 +135,7 @@ export const PoleColumn = styled.div`
   padding: 0;
 
   @media (max-width: 700px) {
-    display: none;
+    display: flex;
   }
 `
 
@@ -160,11 +177,12 @@ export const RightPanel = styled.div`
   padding: 2rem;
 
   @media (max-width: 700px) {
-    width: 100%;
-    margin-left: 0;
-    min-height: 35vh;
-    border-radius: 24px;
-    clip-path: none;
+    width: calc(100% + 12px);
+    margin-left: -12px;
+    min-height: 0;
+    border-radius: 0 14px 14px 0;
+    clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%);
+    padding: clamp(0.5rem, 2.5vw, 1rem);
   }
 `
 

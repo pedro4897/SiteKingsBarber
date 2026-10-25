@@ -12,7 +12,6 @@ export const Navigation = styled.nav`
   align-items: flex-start;
   gap: 1.25rem;
   padding: 1.25rem 0.75rem;
-  border-right: 1px solid rgba(214, 168, 79, 0.2);
   background: rgba(24, 26, 29, 0.94);
   backdrop-filter: blur(12px);
 
@@ -26,7 +25,6 @@ export const Navigation = styled.nav`
     gap: 0.15rem;
     padding: 0.3rem 0.5rem 0.4rem;
     border-right: 0;
-    border-bottom: 1px solid rgba(214, 168, 79, 0.2);
   }
 `
 
@@ -39,6 +37,8 @@ export const Brand = styled.a`
   color: #f4d48a;
   text-decoration: none;
   white-space: nowrap;
+  
+  
 
   @media (max-width: 700px) {
     width: auto;
@@ -132,5 +132,35 @@ export const NavIcon = styled.img`
   @media (max-width: 700px) {
     width: 1.2rem;
     height: 1.2rem;
+  }
+`
+
+export const NavSword = styled.svg`
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 24px;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+
+  @media (max-width: 700px) {
+    display: none;
+  }
+`
+
+export const NavSwordMobile = styled.svg`
+  display: none;
+
+  @media (max-width: 700px) {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    display: block;
+    width: calc(100% - 1.5rem);
+    height: 16px;
+    overflow: visible;
+    transform: translateX(-50%);
+    pointer-events: none;
   }
 `
