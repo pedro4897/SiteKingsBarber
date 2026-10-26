@@ -76,6 +76,8 @@ function Account() {
         )}
       </AccountCard>
     </AccountPage>
+
+    
   )
 }
 

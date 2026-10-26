@@ -74,7 +74,7 @@ export const NavLinks = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.25rem;
+  gap: 1.25rem;
   width: 100%;
   margin-top: 0.25rem;
 
@@ -90,7 +90,7 @@ export const NavLinks = styled.div`
 export const NavLink = styled.a`
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.8rem;
   padding: 0.5rem 0.55rem;
   border: 1px solid ${({ $active }) => ($active ? 'rgba(214, 168, 79, 0.38)' : 'transparent')};
   border-radius: 8px;
@@ -138,8 +138,8 @@ export const NavIcon = styled.img`
 export const NavSword = styled.svg`
   position: absolute;
   top: 0;
-  right: -14px;
-  width: 28px;
+  right: -16px;
+  width: 32px;
   height: 100%;
   overflow: visible;
   pointer-events: none;

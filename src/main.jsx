@@ -8,6 +8,7 @@ import Booking from './containers/Services/Booking'
 import Account from './containers/Account'
 import About from './containers/About'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 const crownSpecs = [
   { id: 1, symbol: '👑', size: 44, left: '8%', top: '12%', duration: 12, delay: 0 },
@@ -104,7 +105,12 @@ function App() {
     const requestedService = new URLSearchParams(query).get('servico')
     const service = services.find((item) => item.name === requestedService) ?? services[0]
 
-    return <Booking service={service} />
+    return (
+      <>
+        <Booking service={service} />
+        <Footer />
+      </>
+    )
   }
 
   const activeRoute = route === '#servicos' || route === '#/servicos'
@@ -124,6 +130,7 @@ function App() {
         <About />
         <Account />
       </PageContent>
+      <Footer />
     </>
   )
 }

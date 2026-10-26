@@ -53,9 +53,9 @@ function Navbar({ activeRoute }) {
         <g transform="translate(0 1000) scale(1 -1)">
           <path d="M12 12 18 32v858l-6 10-6-10V32z" fill="url(#sword-blade)" />
           <path d="M12 25v858" fill="none" stroke="#fff0c2" strokeOpacity=".7" strokeWidth=".8" />
-          <path d="M2 890h20l-2 12H4z" fill="#c99b4a" stroke="#f4d48a" strokeWidth="1.5" />
-          <path d="M9 902h6v67l-3 8-3-8z" fill="#6f4b24" stroke="#d6a84f" strokeWidth="1.5" />
-          <path d="m9.5 912 5 7m-5 7 5 7m-5 7 5 7m-5 7 5 7m-5 7 5 7" stroke="#e3bd70" strokeWidth="1.5" />
+          <path d="M2 867h20l-2 12H4z" fill="#c99b4a" stroke="#f4d48a" strokeWidth="1.5" />
+          <path d="M6 879h12v90l-6 8-6-8z" fill="#6f4b24" stroke="#d6a84f" strokeWidth="1.5" />
+          <path d="m6.5 889 11 7m-11 7 11 7m-11 7 11 7m-11 7 11 7m-11 7 11 7m-11 7 11 7m-11 7 11 7" stroke="#e3bd70" strokeWidth="1.5" />
           <circle cx="12" cy="982" r="4" fill="#c99b4a" stroke="#f4d48a" strokeWidth="1.5" />
         </g>
       </NavSword>
