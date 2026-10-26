@@ -7,7 +7,7 @@ export const AboutPage = styled.section`
   align-items: center;
   padding: 4rem clamp(1.25rem, 8vw, 7rem);
   color: #f5ead7;
-  background: #222426;
+  background: rgba(34, 36, 38, 0.86);
   scroll-margin-top: 5.5rem;
 `
 

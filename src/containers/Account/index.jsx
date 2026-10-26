@@ -7,6 +7,7 @@ import {
   AccountTitle,
   FormField,
   ModeButton,
+  RecoveryButton,
   SubmitButton
 } from './styles'
 
@@ -22,6 +23,10 @@ function Account() {
   const changeMode = () => {
     setIsCreatingAccount((currentMode) => !currentMode)
     setNotice('')
+  }
+
+  const handlePasswordRecovery = () => {
+    setNotice('A recuperação de senha ainda não está conectada a um sistema de contas.')
   }
 
   return (
@@ -64,6 +69,11 @@ function Account() {
         <ModeButton type="button" onClick={changeMode}>
           {isCreatingAccount ? 'Já tem uma conta? Entrar' : 'Ainda não tem conta? Cadastre-se'}
         </ModeButton>
+        {!isCreatingAccount && (
+          <RecoveryButton type="button" onClick={handlePasswordRecovery}>
+            Esqueci a senha
+          </RecoveryButton>
+        )}
       </AccountCard>
     </AccountPage>
   )

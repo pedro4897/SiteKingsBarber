@@ -4,10 +4,8 @@ import {
   AppointmentForm,
   ConfirmButton,
   Confirmation,
-  Crown,
   DateButton,
   DateGrid,
-  FloatingCrowns,
   FormField,
   ReturnButton,
   ScheduleContent,
@@ -25,15 +23,6 @@ import {
 
 const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
 const storageKey = 'kingsbarber-appointments'
-const crowns = [
-  { id: 1, symbol: '👑', size: 44, left: '8%', top: '12%', duration: 12, delay: 0 },
-  { id: 2, symbol: '♔', size: 34, left: '24%', top: '22%', duration: 16, delay: 1.5 },
-  { id: 3, symbol: '👑', size: 56, left: '68%', top: '8%', duration: 14, delay: 2.2 },
-  { id: 4, symbol: '♛', size: 32, left: '85%', top: '32%', duration: 18, delay: 0.8 },
-  { id: 5, symbol: '👑', size: 40, left: '12%', top: '72%', duration: 15, delay: 3.4 },
-  { id: 6, symbol: '♚', size: 30, left: '52%', top: '78%', duration: 17, delay: 2.9 },
-  { id: 7, symbol: '👑', size: 36, left: '76%', top: '66%', duration: 13, delay: 4.1 }
-]
 
 function getDateValue(date) {
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -110,20 +99,6 @@ function Booking({ service }) {
 
   return (
     <SchedulePage>
-      <FloatingCrowns>
-        {crowns.map((crown) => (
-          <Crown
-            key={crown.id}
-            $size={crown.size}
-            $duration={crown.duration}
-            $delay={crown.delay}
-            style={{ left: crown.left, top: crown.top }}
-          >
-            {crown.symbol}
-          </Crown>
-        ))}
-      </FloatingCrowns>
-
       <ScheduleHeader>
         <ReturnButton type="button" onClick={goBack}>Voltar</ReturnButton>
         <ScheduleLogo src={LogoKings} alt="Logo da KingsBarber" />

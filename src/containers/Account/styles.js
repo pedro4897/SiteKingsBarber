@@ -7,7 +7,7 @@ export const AccountPage = styled.section`
   justify-content: center;
   padding: 3rem 1.25rem 2rem;
   color: #f5ead7;
-  background: #181a1d;
+  background: transparent;
   scroll-margin-top: 5.5rem;
 `
 
@@ -98,4 +98,9 @@ export const ModeButton = styled.button`
   &:hover {
     text-decoration: underline;
   }
+`
+
+export const RecoveryButton = styled(ModeButton)`
+  display: block;
+  margin-top: 0.25rem;
 `

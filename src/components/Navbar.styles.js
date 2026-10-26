@@ -138,8 +138,8 @@ export const NavIcon = styled.img`
 export const NavSword = styled.svg`
   position: absolute;
   top: 0;
-  right: -12px;
-  width: 24px;
+  right: -14px;
+  width: 28px;
   height: 100%;
   overflow: visible;
   pointer-events: none;

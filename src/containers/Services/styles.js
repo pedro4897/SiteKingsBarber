@@ -1,50 +1,14 @@
-import styled, { keyframes } from 'styled-components'
-
-const floatAcross = keyframes`
-  0% {
-    transform: translate3d(-10vw, 0, 0) rotate(0deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.28;
-  }
-  50% {
-    transform: translate3d(50vw, -20vh, 0) rotate(180deg);
-    opacity: 0.9;
-  }
-  100% {
-    transform: translate3d(115vw, -35vh, 0) rotate(360deg);
-    opacity: 0;
-  }
-`
+import styled from 'styled-components'
 
 export const BookingPage = styled.section`
   position: relative;
+  z-index: 1;
   overflow: hidden;
   min-height: 100vh;
   padding: 3rem clamp(1.25rem, 5vw, 5rem) 2rem;
   color: #f5ead7;
-  background: #181a1d;
+  background: rgba(24, 26, 29, 0.86);
   scroll-margin-top: 5.5rem;
-`
-
-export const FloatingCrowns = styled.div`
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-`
-
-export const Crown = styled.span`
-  position: absolute;
-  display: inline-block;
-  font-size: ${({ $size }) => $size}px;
-  opacity: 0;
-  color: rgba(255, 215, 0, 0.9);
-  text-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
-  animation: ${floatAcross} ${({ $duration }) => $duration}s linear infinite;
-  animation-delay: ${({ $delay }) => $delay}s;
 `
 
 export const Header = styled.header`
@@ -174,11 +138,12 @@ export const BookingButton = styled.button`
 
 export const SchedulePage = styled.main`
   position: relative;
+  z-index: 1;
   overflow: hidden;
   min-height: 100vh;
   padding: 2rem clamp(1.25rem, 5vw, 5rem);
   color: #f5ead7;
-  background: #181a1d;
+  background: rgba(24, 26, 29, 0.9);
 `
 
 export const ScheduleHeader = styled.header`

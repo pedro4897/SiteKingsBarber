@@ -1,22 +1,4 @@
-import styled, { keyframes } from 'styled-components'
-
-const floatAcross = keyframes`
-  0% {
-    transform: translate3d(-10vw, 0, 0) rotate(0deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.28;
-  }
-  50% {
-    transform: translate3d(50vw, -20vh, 0) rotate(180deg);
-    opacity: 0.9;
-  }
-  100% {
-    transform: translate3d(115vw, -35vh, 0) rotate(360deg);
-    opacity: 0;
-  }
-`
+import styled from 'styled-components'
 
 export const Title = styled.h1`
   color: #968013;
@@ -68,7 +50,7 @@ export const Background = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: #181a1d;
+  background: transparent;
   scroll-margin-top: 5.5rem;
 
   @media (max-width: 700px) {
@@ -186,24 +168,6 @@ export const RightPanel = styled.div`
   }
 `
 
-export const FloatingCrowns = styled.div`
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-`
-
-export const Crown = styled.span`
-  position: absolute;
-  display: inline-block;
-  font-size: ${({ $size }) => $size}px;
-  opacity: 0;
-  color: rgba(255, 215, 0, 0.9);
-  text-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
-  animation: ${floatAcross} ${({ $duration }) => $duration}s linear infinite;
-  animation-delay: ${({ $delay }) => $delay}s;
-`
 export const ActionButton = styled.button`
  background-color: #968013;
  color: rgba(255, 215, 0, 0.9);
