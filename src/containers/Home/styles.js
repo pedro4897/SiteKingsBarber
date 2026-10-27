@@ -15,7 +15,7 @@ export const Title = styled.h1`
 
   @media (max-width: 700px) {
     margin: 0 0 1rem;
-    font-size: clamp(1rem, 4.5vw, 1.6rem);
+    font-size: clamp(0.9rem, 4.8vw, 1.25rem);
     text-align: center;
   }
 `
@@ -54,7 +54,8 @@ export const Background = styled.div`
   scroll-margin-top: 5.5rem;
 
   @media (max-width: 700px) {
-    padding: 1.25rem 0.5rem;
+    min-height: auto;
+    padding: 1.25rem 0.75rem;
   }
 `
 
@@ -71,7 +72,7 @@ export const Content = styled.div`
 
   @media (max-width: 700px) {
     width: 100%;
-    grid-template-columns: minmax(0, 1fr) clamp(18px, 6vw, 36px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) clamp(24px, 8vw, 40px) minmax(0, 1fr);
     min-height: clamp(300px, 70svh, 600px);
   }
 `
@@ -92,17 +93,22 @@ export const LeftPanel = styled.div`
   color: #e2d4d4;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
 
+  p {
+    margin: 0;
+    text-align: center;
+    line-height: 1.6;
+  }
+
   @media (max-width: 700px) {
     width: calc(100% + 12px);
     margin-right: -12px;
     min-height: 0;
-    padding: clamp(0.65rem, 3vw, 1.25rem);
+    padding: clamp(0.5rem, 2.5vw, 1rem);
     border-radius: 14px 0 0 14px;
     clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
 
     p {
-      margin: 0;
-      font-size: clamp(0.7rem, 2.8vw, 0.9rem);
+      font-size: clamp(0.68rem, 2.8vw, 0.85rem);
       line-height: 1.4;
     }
   }
@@ -115,10 +121,6 @@ export const PoleColumn = styled.div`
   align-items: center;
   justify-content: center;
   padding: 0;
-
-  @media (max-width: 700px) {
-    display: flex;
-  }
 `
 
 export const BarberPole = styled.div`
@@ -141,6 +143,10 @@ export const BarberPole = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 700px) {
+    clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+  }
 `
 
 export const RightPanel = styled.div`

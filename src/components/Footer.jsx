@@ -8,6 +8,9 @@ const FooterBar = styled.footer`
   color: #c7b9a7;
   background: rgba(24, 26, 29, 0.94);
 
+  @media (max-width: 700px) {
+    padding: 2rem 1.25rem;
+  }
 `
 
 
