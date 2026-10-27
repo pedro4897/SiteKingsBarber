@@ -27,6 +27,39 @@ export const AccountCard = styled.section`
   }
 `
 
+export const AppointmentList = styled.div`
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+`
+
+export const AppointmentItem = styled.article`
+  padding: 1rem;
+  border: 1px solid rgba(214, 168, 79, 0.28);
+  border-radius: 6px;
+  background: #181a1d;
+
+  h2 {
+    margin: 0 0 0.5rem;
+    color: #f4d48a;
+    font-size: 1rem;
+  }
+
+  p {
+    margin: 0.3rem 0;
+    color: #c7b9a7;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+`
+
+export const AppointmentSectionTitle = styled.h2`
+  margin: 1.75rem 0 0;
+  color: #f4d48a;
+  font-size: 1.2rem;
+  font-weight: 500;
+`
+
 export const AccountTitle = styled.h1`
   margin: 0;
   color: #f4d48a;
@@ -80,6 +113,11 @@ export const SubmitButton = styled.button`
   font: inherit;
   font-weight: 700;
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
   &:hover {
     background: #f0c96d;
   }
@@ -94,6 +132,11 @@ export const ModeButton = styled.button`
   cursor: pointer;
   font: inherit;
   text-align: left;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
 
   &:hover {
     text-decoration: underline;

@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { addDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
+import { firebaseAuth, firebaseDb } from '../../firebase'
 import LogoKings from '../Home/Logo Kings Barber.png'
 import {
   AppointmentForm,
@@ -75,13 +78,53 @@ function Booking({ service }) {
   const [name, setName] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [appointments, setAppointments] = useState(getSavedAppointments)
+  const [accountAppointments, setAccountAppointments] = useState([])
+  const [user, setUser] = useState(firebaseAuth?.currentUser ?? null)
+  const [isAuthReady, setIsAuthReady] = useState(!firebaseAuth)
   const [confirmedAppointment, setConfirmedAppointment] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [notice, setNotice] = useState('')
+
+  useEffect(() => {
+    if (!firebaseAuth) {
+      return undefined
+    }
+
+    let unsubscribeAppointments
+    const unsubscribeAuth = onAuthStateChanged(firebaseAuth, (currentUser) => {
+      setUser(currentUser)
+      setIsAuthReady(true)
+      setNotice('')
+      unsubscribeAppointments?.()
+      setAccountAppointments([])
+
+      if (currentUser && firebaseDb) {
+        unsubscribeAppointments = onSnapshot(
+          collection(firebaseDb, 'users', currentUser.uid, 'appointments'),
+          (snapshot) => {
+            setAccountAppointments(snapshot.docs.map((document) => ({
+              id: document.id,
+              ...document.data()
+            })))
+          },
+          (error) => {
+            setNotice(`Não foi possível carregar os horários: ${error.message}`)
+          }
+        )
+      }
+    })
+
+    return () => {
+      unsubscribeAuth()
+      unsubscribeAppointments?.()
+    }
+  }, [])
 
   const goBack = () => {
     window.location.hash = 'servicos'
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     const appointment = {
@@ -91,10 +134,25 @@ function Booking({ service }) {
       name: name.trim(),
       whatsapp
     }
-    const updatedAppointments = [...appointments, appointment]
-    setAppointments(updatedAppointments)
-    window.localStorage.setItem(storageKey, JSON.stringify(updatedAppointments))
-    setConfirmedAppointment(appointment)
+    setIsSaving(true)
+    setNotice('')
+    try {
+      if (user && firebaseDb) {
+        await addDoc(collection(firebaseDb, 'users', user.uid, 'appointments'), {
+          ...appointment,
+          createdAt: serverTimestamp()
+        })
+      } else {
+        const updatedAppointments = [...appointments, appointment]
+        setAppointments(updatedAppointments)
+        window.localStorage.setItem(storageKey, JSON.stringify(updatedAppointments))
+      }
+      setConfirmedAppointment(appointment)
+    } catch (error) {
+      setNotice(`Não foi possível salvar o agendamento: ${error.message}`)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -119,7 +177,11 @@ function Booking({ service }) {
 
         {confirmedAppointment ? (
           <Confirmation>
-            <h2>Agendamento salvo neste dispositivo</h2>
+            <h2>
+              {user && firebaseDb
+                ? 'Agendamento salvo na sua conta'
+                : 'Agendamento salvo neste dispositivo'}
+            </h2>
             <p>A barbearia ainda não foi notificada. Confirme o horário diretamente com a equipe.</p>
             <p><strong>Nome:</strong> {confirmedAppointment.name}</p>
             <p><strong>WhatsApp:</strong> {confirmedAppointment.whatsapp}</p>
@@ -158,9 +220,13 @@ function Booking({ service }) {
               <SectionTitle>Horários disponíveis</SectionTitle>
               <TimeGrid>
                 {timeSlots.map((time) => {
-                  const isBooked = appointments.some(
+                  const isBookedLocally = appointments.some(
                     (appointment) => appointment.date === selectedDate && appointment.time === time
                   )
+                  const isBookedByAccount = accountAppointments.some(
+                    (appointment) => appointment.date === selectedDate && appointment.time === time
+                  )
+                  const isBooked = isBookedLocally || isBookedByAccount
                   return (
                     <TimeButton
                       key={time}
@@ -201,10 +267,11 @@ function Booking({ service }) {
                   required
                 />
               </FormField>
-              <ConfirmButton type="submit" disabled={!selectedTime}>
-                Confirmar agendamento
+              <ConfirmButton type="submit" disabled={!selectedTime || isSaving || !isAuthReady}>
+                {isSaving ? 'Salvando...' : 'Confirmar agendamento'}
               </ConfirmButton>
             </AppointmentForm>
+            {notice && <p role="status">{notice}</p>}
           </>
         )}
       </ScheduleContent>

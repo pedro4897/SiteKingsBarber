@@ -1,5 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile
+} from 'firebase/auth'
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { firebaseAuth, firebaseConfigError, firebaseDb } from '../../firebase'
+import {
+  AppointmentItem,
+  AppointmentList,
+  AppointmentSectionTitle,
   AccountCard,
   AccountForm,
   AccountPage,
@@ -11,13 +24,118 @@ import {
   SubmitButton
 } from './styles'
 
+function formatAppointmentDate(dateValue) {
+  return new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date(`${dateValue}T12:00:00`))
+}
+
+function getAuthErrorMessage(error) {
+  const messages = {
+    'auth/email-already-in-use': 'Este e-mail já está cadastrado. Tente entrar.',
+    'auth/invalid-credential': 'E-mail ou senha incorretos.',
+    'auth/invalid-email': 'Informe um endereço de e-mail válido.',
+    'auth/network-request-failed': 'Não foi possível conectar. Verifique sua internet e tente novamente.',
+    'auth/operation-not-allowed': 'O login por e-mail e senha não está habilitado no Firebase.',
+    'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco e tente novamente.',
+    'auth/unauthorized-domain': 'Este domínio não está autorizado no Firebase Authentication.',
+    'auth/weak-password': 'A senha é muito fraca. Use pelo menos 6 caracteres.',
+    'auth/user-disabled': 'Esta conta foi desativada.',
+    'auth/user-not-found': 'Não existe uma conta com este e-mail.',
+    'auth/wrong-password': 'E-mail ou senha incorretos.'
+  }
+
+  return messages[error.code] ?? error.message ?? 'Ocorreu um erro na autenticação.'
+}
+
 function Account() {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false)
-  const [notice, setNotice] = useState('')
+  const [user, setUser] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [appointments, setAppointments] = useState([])
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(false)
+  const [appointmentsError, setAppointmentsError] = useState('')
+  const [notice, setNotice] = useState(firebaseConfigError)
+  const emailInput = useRef(null)
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    if (!firebaseAuth) {
+      return undefined
+    }
+
+    return onAuthStateChanged(
+      firebaseAuth,
+      (currentUser) => {
+        setUser(currentUser)
+        setNotice('')
+      },
+      (error) => setNotice(getAuthErrorMessage(error))
+    )
+  }, [])
+
+  useEffect(() => {
+    if (!user || !firebaseDb) {
+      setAppointments([])
+      setIsLoadingAppointments(false)
+      setAppointmentsError('')
+      return undefined
+    }
+
+    setIsLoadingAppointments(true)
+    setAppointmentsError('')
+    const appointmentsQuery = query(
+      collection(firebaseDb, 'users', user.uid, 'appointments'),
+      orderBy('createdAt', 'desc')
+    )
+
+    return onSnapshot(
+      appointmentsQuery,
+      (snapshot) => {
+        setAppointments(snapshot.docs.map((document) => ({
+          id: document.id,
+          ...document.data()
+        })))
+        setIsLoadingAppointments(false)
+      },
+      (error) => {
+        setAppointmentsError(`Não foi possível carregar seus agendamentos: ${error.message}`)
+        setIsLoadingAppointments(false)
+      }
+    )
+  }, [user])
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    setNotice('Esta tela é demonstrativa e ainda não está conectada a um sistema de contas.')
+    if (!firebaseAuth) {
+      setNotice(firebaseConfigError)
+      return
+    }
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get('email').trim()
+    const password = formData.get('password')
+
+    setIsLoading(true)
+    setNotice('')
+
+    try {
+      if (isCreatingAccount) {
+        const credential = await createUserWithEmailAndPassword(firebaseAuth, email, password)
+        const name = formData.get('name').trim()
+        await updateProfile(credential.user, { displayName: name })
+        setUser(credential.user)
+      } else {
+        const credential = await signInWithEmailAndPassword(firebaseAuth, email, password)
+        setUser(credential.user)
+      }
+    } catch (error) {
+      setNotice(getAuthErrorMessage(error))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const changeMode = () => {
@@ -25,59 +143,144 @@ function Account() {
     setNotice('')
   }
 
-  const handlePasswordRecovery = () => {
-    setNotice('A recuperação de senha ainda não está conectada a um sistema de contas.')
+  const handlePasswordRecovery = async () => {
+    if (!firebaseAuth) {
+      setNotice(firebaseConfigError)
+      return
+    }
+
+    const email = emailInput.current?.value.trim()
+    if (!email) {
+      setNotice('Informe seu e-mail para receber o link de recuperação.')
+      emailInput.current?.focus()
+      return
+    }
+
+    setIsLoading(true)
+    setNotice('')
+
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email)
+      setNotice('Se houver uma conta com esse e-mail, você receberá um link para redefinir a senha.')
+    } catch (error) {
+      setNotice(getAuthErrorMessage(error))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSignOut = async () => {
+    if (!firebaseAuth) {
+      setNotice(firebaseConfigError)
+      return
+    }
+
+    setIsLoading(true)
+    setNotice('')
+
+    try {
+      await signOut(firebaseAuth)
+      setUser(null)
+    } catch (error) {
+      setNotice(getAuthErrorMessage(error))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <AccountPage id="conta">
       <AccountCard>
-        <AccountTitle>{isCreatingAccount ? 'Crie sua conta' : 'Acesse sua conta'}</AccountTitle>
-        <AccountSubtitle>
-          {isCreatingAccount
-            ? 'Cadastre-se para acompanhar seus agendamentos.'
-            : 'Entre para acompanhar seus agendamentos.'}
-        </AccountSubtitle>
+        {user ? (
+          <>
+            <AccountTitle>Sua conta</AccountTitle>
+            <AccountSubtitle>
+              Você está conectado como {user.displayName || user.email}.
+            </AccountSubtitle>
+            <AppointmentSectionTitle>Seus agendamentos</AppointmentSectionTitle>
+            {isLoadingAppointments && <p role="status">Carregando agendamentos...</p>}
+            {appointmentsError && <p role="alert">{appointmentsError}</p>}
+            {!isLoadingAppointments && !appointmentsError && appointments.length === 0 && (
+              <p>Você ainda não tem agendamentos.</p>
+            )}
+            {appointments.length > 0 && (
+              <AppointmentList>
+                {appointments.map((appointment) => (
+                  <AppointmentItem key={appointment.id}>
+                    <h2>{appointment.service}</h2>
+                    <p><strong>Data:</strong> {formatAppointmentDate(appointment.date)}</p>
+                    <p><strong>Horário:</strong> {appointment.time}</p>
+                    <p><strong>Nome:</strong> {appointment.name}</p>
+                    <p><strong>WhatsApp:</strong> {appointment.whatsapp}</p>
+                  </AppointmentItem>
+                ))}
+              </AppointmentList>
+            )}
+            <SubmitButton type="button" onClick={handleSignOut} disabled={isLoading}>
+              {isLoading ? 'Saindo...' : 'Sair da conta'}
+            </SubmitButton>
+          </>
+        ) : (
+          <>
+            <AccountTitle>{isCreatingAccount ? 'Crie sua conta' : 'Acesse sua conta'}</AccountTitle>
+            <AccountSubtitle>
+              {isCreatingAccount
+                ? 'Cadastre-se para acompanhar seus agendamentos.'
+                : 'Entre para acompanhar seus agendamentos.'}
+            </AccountSubtitle>
 
-        <AccountForm onSubmit={handleSubmit}>
-          {isCreatingAccount && (
-            <FormField>
-              Nome
-              <input type="text" name="name" autoComplete="name" required />
-            </FormField>
-          )}
-          <FormField>
-            E-mail
-            <input type="email" name="email" autoComplete="email" required />
-          </FormField>
-          <FormField>
-            Senha
-            <input
-              type="password"
-              name="password"
-              autoComplete={isCreatingAccount ? 'new-password' : 'current-password'}
-              required
-            />
-          </FormField>
-          <SubmitButton type="submit">
-            {isCreatingAccount ? 'Criar conta' : 'Entrar'}
-          </SubmitButton>
-        </AccountForm>
+            <AccountForm onSubmit={handleSubmit}>
+              {isCreatingAccount && (
+                <FormField>
+                  Nome
+                  <input type="text" name="name" autoComplete="name" required disabled={isLoading} />
+                </FormField>
+              )}
+              <FormField>
+                E-mail
+                <input
+                  ref={emailInput}
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  required
+                  disabled={isLoading}
+                />
+              </FormField>
+              <FormField>
+                Senha
+                <input
+                  type="password"
+                  name="password"
+                  autoComplete={isCreatingAccount ? 'new-password' : 'current-password'}
+                  required
+                  minLength={isCreatingAccount ? 6 : undefined}
+                  disabled={isLoading}
+                />
+              </FormField>
+              <SubmitButton type="submit" disabled={isLoading || !firebaseAuth}>
+                {isLoading ? 'Aguarde...' : isCreatingAccount ? 'Criar conta' : 'Entrar'}
+              </SubmitButton>
+            </AccountForm>
+
+            <ModeButton type="button" onClick={changeMode} disabled={isLoading}>
+              {isCreatingAccount ? 'Já tem uma conta? Entrar' : 'Ainda não tem conta? Cadastre-se'}
+            </ModeButton>
+            {!isCreatingAccount && (
+              <RecoveryButton
+                type="button"
+                onClick={handlePasswordRecovery}
+                disabled={isLoading || !firebaseAuth}
+              >
+                Esqueci a senha
+              </RecoveryButton>
+            )}
+          </>
+        )}
 
         {notice && <p role="status">{notice}</p>}
-
-        <ModeButton type="button" onClick={changeMode}>
-          {isCreatingAccount ? 'Já tem uma conta? Entrar' : 'Ainda não tem conta? Cadastre-se'}
-        </ModeButton>
-        {!isCreatingAccount && (
-          <RecoveryButton type="button" onClick={handlePasswordRecovery}>
-            Esqueci a senha
-          </RecoveryButton>
-        )}
       </AccountCard>
     </AccountPage>
-
-    
   )
 }
 
