@@ -34,6 +34,8 @@ export const AppointmentList = styled.div`
 `
 
 export const AppointmentItem = styled.article`
+  display: grid;
+  gap: 0.3rem;
   padding: 1rem;
   border: 1px solid rgba(214, 168, 79, 0.28);
   border-radius: 6px;
@@ -46,10 +48,50 @@ export const AppointmentItem = styled.article`
   }
 
   p {
-    margin: 0.3rem 0;
+    margin: 0;
     color: #c7b9a7;
     font-size: 0.9rem;
     line-height: 1.45;
+  }
+`
+
+export const AppointmentActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`
+
+export const AppointmentConfirm = styled.div`
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(214, 168, 79, 0.3);
+  border-radius: 4px;
+  background: #222426;
+`
+
+export const AppointmentDeleteButton = styled.button`
+  min-height: 38px;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid ${({ $secondary }) => ($secondary ? 'rgba(214, 168, 79, 0.45)' : '#9a3e36')};
+  border-radius: 4px;
+  color: ${({ $secondary }) => ($secondary ? '#f5ead7' : '#fff')};
+  background: ${({ $secondary }) => ($secondary ? 'transparent' : '#8b302b')};
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: ${({ $secondary }) => ($secondary ? 'rgba(214, 168, 79, 0.12)' : '#a43b34')};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
   }
 `
 

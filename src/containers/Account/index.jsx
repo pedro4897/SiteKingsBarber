@@ -7,11 +7,14 @@ import {
   signOut,
   updateProfile
 } from 'firebase/auth'
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { collection, deleteDoc, doc, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { firebaseAuth, firebaseConfigError, firebaseDb } from '../../firebase'
 import {
   AppointmentItem,
   AppointmentList,
+  AppointmentActions,
+  AppointmentDeleteButton,
+  AppointmentConfirm,
   AppointmentSectionTitle,
   AccountCard,
   AccountForm,
@@ -58,6 +61,8 @@ function Account() {
   const [appointments, setAppointments] = useState([])
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false)
   const [appointmentsError, setAppointmentsError] = useState('')
+  const [appointmentToDelete, setAppointmentToDelete] = useState(null)
+  const [deletingAppointmentId, setDeletingAppointmentId] = useState('')
   const [notice, setNotice] = useState(firebaseConfigError)
   const emailInput = useRef(null)
 
@@ -188,6 +193,25 @@ function Account() {
     }
   }
 
+  const handleDeleteAppointment = async (appointmentId) => {
+    if (!firebaseDb || !user) {
+      setAppointmentsError('Não foi possível excluir o agendamento. Entre novamente na sua conta.')
+      return
+    }
+
+    setDeletingAppointmentId(appointmentId)
+    setAppointmentsError('')
+
+    try {
+      await deleteDoc(doc(firebaseDb, 'users', user.uid, 'appointments', appointmentId))
+      setAppointmentToDelete(null)
+    } catch (error) {
+      setAppointmentsError(`Não foi possível excluir o agendamento: ${error.message}`)
+    } finally {
+      setDeletingAppointmentId('')
+    }
+  }
+
   return (
     <AccountPage id="conta">
       <AccountCard>
@@ -212,6 +236,36 @@ function Account() {
                     <p><strong>Horário:</strong> {appointment.time}</p>
                     <p><strong>Nome:</strong> {appointment.name}</p>
                     <p><strong>WhatsApp:</strong> {appointment.whatsapp}</p>
+                    {appointmentToDelete === appointment.id ? (
+                      <AppointmentConfirm>
+                        <p>Tem certeza que deseja excluir este agendamento?</p>
+                        <AppointmentActions>
+                          <AppointmentDeleteButton
+                            type="button"
+                            onClick={() => handleDeleteAppointment(appointment.id)}
+                            disabled={deletingAppointmentId === appointment.id}
+                          >
+                            {deletingAppointmentId === appointment.id ? 'Excluindo...' : 'Sim, excluir'}
+                          </AppointmentDeleteButton>
+                          <AppointmentDeleteButton
+                            type="button"
+                            $secondary
+                            onClick={() => setAppointmentToDelete(null)}
+                            disabled={deletingAppointmentId === appointment.id}
+                          >
+                            Cancelar
+                          </AppointmentDeleteButton>
+                        </AppointmentActions>
+                      </AppointmentConfirm>
+                    ) : (
+                      <AppointmentDeleteButton
+                        type="button"
+                        onClick={() => setAppointmentToDelete(appointment.id)}
+                        disabled={Boolean(deletingAppointmentId)}
+                      >
+                        Excluir agendamento
+                      </AppointmentDeleteButton>
+                    )}
                   </AppointmentItem>
                 ))}
               </AppointmentList>
