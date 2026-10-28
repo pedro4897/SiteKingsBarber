@@ -9,10 +9,17 @@ export const AccountPage = styled.section`
   color: #f5ead7;
   background: transparent;
   scroll-margin-top: 5.5rem;
+
+  ${({ $homeLogin }) => $homeLogin && `
+    display: block;
+    min-height: 0;
+    padding: 0;
+    scroll-margin-top: 0;
+  `}
 `
 
 export const AccountCard = styled.section`
-  width: min(100%, ${({ $wide }) => ($wide ? '760px' : '460px')});
+  width: min(100%, ${({ $wide, $homeLogin }) => ($wide ? '760px' : $homeLogin ? '520px' : '460px')});
   padding: clamp(1.5rem, 5vw, 2.5rem);
   border: 1px solid rgba(214, 168, 79, 0.35);
   border-radius: 8px;
@@ -24,6 +31,52 @@ export const AccountCard = styled.section`
     color: #f4d48a;
     font-size: 0.9rem;
     line-height: 1.5;
+  }
+
+  [role='alert'] {
+    color: #ffb6a8;
+    line-height: 1.5;
+  }
+
+  ${({ $homeLogin }) => $homeLogin && `
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+    border-color: rgba(214, 168, 79, 0.48);
+    background: rgba(34, 36, 38, 0.96);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+  `}
+`
+
+export const AccountNotice = styled.div`
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid rgba(214, 168, 79, 0.3);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(214, 168, 79, 0.1), rgba(24, 26, 29, 0.6));
+`
+
+export const AccountActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+`
+
+export const TextLink = styled.a`
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(214, 168, 79, 0.55);
+  border-radius: 4px;
+  color: #f4d48a;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    color: #20170e;
+    background: #f0c96d;
   }
 `
 

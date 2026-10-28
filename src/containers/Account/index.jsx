@@ -15,15 +15,17 @@ import {
   AppointmentActions,
   AppointmentDeleteButton,
   AppointmentConfirm,
-  AppointmentSectionTitle,
   AccountCard,
   AccountForm,
   AccountPage,
+  AccountNotice,
   AccountSubtitle,
   AccountTitle,
   FormField,
+  AccountActions,
   ModeButton,
   RecoveryButton,
+  TextLink,
   SubmitButton
 } from './styles'
 
@@ -54,7 +56,7 @@ function getAuthErrorMessage(error) {
   return messages[error.code] ?? error.message ?? 'Ocorreu um erro na autenticação.'
 }
 
-function Account({ appointmentsOnly = false }) {
+function Account({ appointmentsOnly = false, homeLogin = false }) {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false)
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -213,21 +215,23 @@ function Account({ appointmentsOnly = false }) {
   }
 
   return (
-    <AccountPage id={appointmentsOnly ? 'agendamentos' : 'conta'}>
-      <AccountCard $wide={appointmentsOnly}>
+    <AccountPage
+      id={homeLogin ? undefined : appointmentsOnly ? 'agendamentos' : 'conta'}
+      $homeLogin={homeLogin}
+    >
+      <AccountCard $wide={appointmentsOnly} $homeLogin={homeLogin}>
         {user ? (
           <>
             <AccountTitle>{appointmentsOnly ? 'Seus agendamentos' : 'Sua conta'}</AccountTitle>
             <AccountSubtitle>
               Você está conectado como {user.displayName || user.email}.
             </AccountSubtitle>
-            {!appointmentsOnly && <AppointmentSectionTitle>Seus agendamentos</AppointmentSectionTitle>}
             {isLoadingAppointments && <p role="status">Carregando agendamentos...</p>}
             {appointmentsError && <p role="alert">{appointmentsError}</p>}
-            {!isLoadingAppointments && !appointmentsError && appointments.length === 0 && (
+            {appointmentsOnly && !isLoadingAppointments && !appointmentsError && appointments.length === 0 && (
               <p>Você ainda não tem agendamentos.</p>
             )}
-            {appointments.length > 0 && (
+            {appointmentsOnly && appointments.length > 0 && (
               <AppointmentList>
                 {appointments.map((appointment) => (
                   <AppointmentItem key={appointment.id}>
@@ -275,67 +279,88 @@ function Account({ appointmentsOnly = false }) {
                 Voltar à conta
               </ModeButton>
             ) : (
-              <SubmitButton type="button" onClick={handleSignOut} disabled={isLoading}>
-                {isLoading ? 'Saindo...' : 'Sair da conta'}
-              </SubmitButton>
+              <AccountActions>
+                {!homeLogin && !isLoadingAppointments && !appointmentsError && (
+                  <TextLink href={appointments.length === 0 ? '#servicos' : '#agendamentos'}>
+                    {appointments.length === 0 ? 'Agendar um horário' : 'Ver agendamentos'}
+                  </TextLink>
+                )}
+                {homeLogin && (
+                  <TextLink href="#conta">Gerenciar conta</TextLink>
+                )}
+                <SubmitButton type="button" onClick={handleSignOut} disabled={isLoading}>
+                  {isLoading ? 'Saindo...' : 'Sair da conta'}
+                </SubmitButton>
+              </AccountActions>
             )}
           </>
         ) : (
-          <>
-            <AccountTitle>{isCreatingAccount ? 'Crie sua conta' : 'Acesse sua conta'}</AccountTitle>
-            <AccountSubtitle>
-              {isCreatingAccount
-                ? 'Cadastre-se para acompanhar seus agendamentos.'
-                : 'Entre para acompanhar seus agendamentos.'}
-            </AccountSubtitle>
+          homeLogin ? (
+            <>
+              <AccountTitle>{isCreatingAccount ? 'Crie sua conta' : 'Acesse sua conta'}</AccountTitle>
+              <AccountSubtitle>
+                {isCreatingAccount
+                  ? 'Cadastre-se para acompanhar seus agendamentos.'
+                  : 'Entre para acompanhar seus agendamentos.'}
+              </AccountSubtitle>
 
-            <AccountForm onSubmit={handleSubmit}>
-              {isCreatingAccount && (
+              <AccountForm onSubmit={handleSubmit}>
+                {isCreatingAccount && (
+                  <FormField>
+                    Nome
+                    <input type="text" name="name" autoComplete="name" required disabled={isLoading} />
+                  </FormField>
+                )}
                 <FormField>
-                  Nome
-                  <input type="text" name="name" autoComplete="name" required disabled={isLoading} />
+                  E-mail
+                  <input
+                    ref={emailInput}
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    required
+                    disabled={isLoading}
+                  />
                 </FormField>
-              )}
-              <FormField>
-                E-mail
-                <input
-                  ref={emailInput}
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  required
-                  disabled={isLoading}
-                />
-              </FormField>
-              <FormField>
-                Senha
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete={isCreatingAccount ? 'new-password' : 'current-password'}
-                  required
-                  minLength={isCreatingAccount ? 6 : undefined}
-                  disabled={isLoading}
-                />
-              </FormField>
-              <SubmitButton type="submit" disabled={isLoading || !firebaseAuth}>
-                {isLoading ? 'Aguarde...' : isCreatingAccount ? 'Criar conta' : 'Entrar'}
-              </SubmitButton>
-            </AccountForm>
+                <FormField>
+                  Senha
+                  <input
+                    type="password"
+                    name="password"
+                    autoComplete={isCreatingAccount ? 'new-password' : 'current-password'}
+                    required
+                    minLength={isCreatingAccount ? 6 : undefined}
+                    disabled={isLoading}
+                  />
+                </FormField>
+                <SubmitButton type="submit" disabled={isLoading || !firebaseAuth}>
+                  {isLoading ? 'Aguarde...' : isCreatingAccount ? 'Criar conta' : 'Entrar'}
+                </SubmitButton>
+              </AccountForm>
 
-            <ModeButton type="button" onClick={changeMode} disabled={isLoading}>
-              {isCreatingAccount ? 'Já tem uma conta? Entrar' : 'Ainda não tem conta? Cadastre-se'}
-            </ModeButton>
-            {!isCreatingAccount && (
-              <RecoveryButton
-                type="button"
-                onClick={handlePasswordRecovery}
-                disabled={isLoading || !firebaseAuth}
-              >
-                Esqueci a senha
-              </RecoveryButton>
-            )}
-          </>
+              <ModeButton type="button" onClick={changeMode} disabled={isLoading}>
+                {isCreatingAccount ? 'Já tem uma conta? Entrar' : 'Ainda não tem conta? Cadastre-se'}
+              </ModeButton>
+              {!isCreatingAccount && (
+                <RecoveryButton
+                  type="button"
+                  onClick={handlePasswordRecovery}
+                  disabled={isLoading || !firebaseAuth}
+                >
+                  Esqueci a senha
+                </RecoveryButton>
+              )}
+            </>
+          ) : (
+            <AccountNotice>
+              <AccountTitle>Acesse sua conta pela Home</AccountTitle>
+              <AccountSubtitle>
+                Para entrar ou criar uma conta, use o formulário seguro na página inicial.
+                Depois do login, você poderá gerenciar sua conta e acompanhar seus horários.
+              </AccountSubtitle>
+              <TextLink href="#home">Ir para a Home</TextLink>
+            </AccountNotice>
+          )
         )}
 
         {notice && <p role="status">{notice}</p>}

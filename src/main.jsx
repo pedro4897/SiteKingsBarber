@@ -40,6 +40,17 @@ const floatAcross = keyframes`
   }
 `
 
+const riseIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`
+
 const CrownBackground = styled.div`
   position: fixed;
   inset: 0;
@@ -68,6 +79,32 @@ const PageContent = styled.div`
   @media (max-width: 700px) {
     margin-left: 0;
     padding-top: 8rem;
+  }
+`
+
+const PageTransition = styled.div`
+  min-height: 100vh;
+
+  > * {
+    animation: ${riseIn} 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  > * > * {
+    animation: ${riseIn} 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: 100ms;
+  }
+
+  > * > * > * {
+    animation: ${riseIn} 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: 180ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    > *,
+    > * > *,
+    > * > * > * {
+      animation: none;
+    }
   }
 `
 
@@ -147,46 +184,41 @@ function App() {
 
     return (
       <>
-        <Booking service={service} />
+        <PageTransition key={route}>
+          <Booking service={service} />
+        </PageTransition>
         <Footer />
       </>
     )
   }
 
-  if (
-    (route === '#agendamentos' || route === '#/agendamentos') &&
-    isAuthReady &&
-    user
-  ) {
-    return (
-      <>
-        <Navbar activeRoute="agendamentos" />
-        <PageContent>
-          <Account appointmentsOnly />
-        </PageContent>
-        <Footer />
-      </>
-    )
-  }
-
+  const isAppointmentsRoute = route === '#agendamentos' || route === '#/agendamentos'
   const activeRoute = route === '#servicos' || route === '#/servicos'
     ? 'servicos'
     : route === '#conta' || route === '#/conta'
       ? 'conta'
-      : route === '#agendamentos' || route === '#/agendamentos'
-        ? 'conta'
-      : route === '#sobre-nos'
-        ? 'sobre-nos'
-        : 'home'
+      : isAppointmentsRoute
+        ? user ? 'agendamentos' : 'conta'
+        : route === '#sobre-nos' || route === '#/sobre-nos'
+          ? 'sobre-nos'
+          : 'home'
+  const page = activeRoute === 'servicos'
+    ? <Services />
+    : activeRoute === 'sobre-nos'
+      ? <About />
+      : activeRoute === 'conta'
+        ? <Account />
+        : activeRoute === 'agendamentos' && isAuthReady && user
+          ? <Account appointmentsOnly />
+          : <Home />
 
   return (
     <>
       <Navbar activeRoute={activeRoute} />
       <PageContent>
-        <Home />
-        <Services />
-        <About />
-        <Account />
+        <PageTransition key={activeRoute}>
+          {page}
+        </PageTransition>
       </PageContent>
       <Footer />
     </>

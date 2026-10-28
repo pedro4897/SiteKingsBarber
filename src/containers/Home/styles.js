@@ -1,22 +1,28 @@
 import styled from 'styled-components'
 
 export const Title = styled.h1`
-  color: #968013;
   color: rgba(255, 215, 0, 0.9);
   text-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
-  font-size: 3rem;
+  font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2rem;
+  margin: 0 0 0.75rem;
   position: relative;
   z-index: 1;
 
   @media (max-width: 700px) {
-    margin: 0 0 1rem;
-    font-size: clamp(0.9rem, 4.8vw, 1.25rem);
-    text-align: center;
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+`
+
+export const HomeIntro = styled.div`
+  margin: 0 0 1.25rem;
+
+  p {
+    max-width: 36rem;
+    margin: 0;
+    color: #e2d4d4;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    line-height: 1.6;
   }
 `
 
@@ -72,8 +78,9 @@ export const Content = styled.div`
 
   @media (max-width: 700px) {
     width: 100%;
-    grid-template-columns: minmax(0, 1fr) clamp(24px, 8vw, 40px) minmax(0, 1fr);
-    min-height: clamp(300px, 70svh, 600px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    min-height: 0;
   }
 `
 
@@ -82,35 +89,22 @@ export const LeftPanel = styled.div`
   z-index: 1;
   width: calc(100% + 24px);
   margin-right: -24px;
-  background: #3c3c35;
+  background: #000;
   border-radius: 24px 0 0 24px;
   clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 100%, 0 100%);
-  padding: 3rem;
+  padding: 2rem 3rem 2rem 2rem;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  color: #e2d4d4;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
 
-  p {
-    margin: 0;
-    text-align: center;
-    line-height: 1.6;
-  }
-
   @media (max-width: 700px) {
-    width: calc(100% + 12px);
-    margin-right: -12px;
+    width: 100%;
+    margin: 0;
     min-height: 0;
-    padding: clamp(0.5rem, 2.5vw, 1rem);
-    border-radius: 14px 0 0 14px;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
-
-    p {
-      font-size: clamp(0.68rem, 2.8vw, 0.85rem);
-      line-height: 1.4;
-    }
+    padding: 0.75rem;
+    border-radius: 12px;
+    clip-path: none;
   }
 `
 
@@ -121,6 +115,10 @@ export const PoleColumn = styled.div`
   align-items: center;
   justify-content: center;
   padding: 0;
+
+  @media (max-width: 700px) {
+    display: none;
+  }
 `
 
 export const BarberPole = styled.div`
@@ -154,23 +152,24 @@ export const RightPanel = styled.div`
   z-index: 1;
   width: calc(100% + 24px);
   margin-left: -24px;
-  background: #000;
+  background: #73673d;
   border-radius: 0 24px 24px 0;
   clip-path: polygon(24px 0, 100% 0, 100% 100%, 0 100%);
   overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
-  padding: 2rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  
 
   @media (max-width: 700px) {
-    width: calc(100% + 12px);
-    margin-left: -12px;
+    width: 100%;
+    margin: 0;
     min-height: 0;
-    border-radius: 0 14px 14px 0;
-    clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%);
-    padding: clamp(0.5rem, 2.5vw, 1rem);
+    border-radius: 12px;
+    clip-path: none;
+    padding: 1.25rem;
   }
 `
 

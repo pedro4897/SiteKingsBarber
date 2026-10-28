@@ -1,13 +1,26 @@
-import { BarberImage, Background, BarberPole, Content, ImageContainer, LeftPanel, PoleColumn, RightPanel, Title } from './styles'
+import {
+  BarberImage,
+  Background,
+  BarberPole,
+  Content,
+  HomeIntro,
+  ImageContainer,
+  LeftPanel,
+  PoleColumn,
+  RightPanel,
+  Title
+} from './styles'
 import LogoKings from './Logo Kings Barber.png'
+import Account from '../Account'
 
 function Home() {
   return (
     <Background id="home">
       <Content>
         <LeftPanel>
-          <Title>KingsBarber</Title>
-          <p>Bem-vindo ao site da KingsBarber, com estilo e atitude. Conheça nossos serviços e tenha um atendimento de alto nível.</p>
+          <ImageContainer>
+            <BarberImage src={LogoKings} alt="Logo da KingsBarber" />
+          </ImageContainer>
         </LeftPanel>
 
         <PoleColumn>
@@ -15,9 +28,14 @@ function Home() {
         </PoleColumn>
 
         <RightPanel>
-          <ImageContainer>
-            <BarberImage src={LogoKings} alt="Logo da KingsBarber" />
-          </ImageContainer>
+          <HomeIntro>
+            <Title>KingsBarber</Title>
+            <p>
+              Bem-vindo à KingsBarber: estilo e atitude em cada detalhe.
+              Conheça nossos serviços e aproveite um atendimento de alto nível.
+            </p>
+          </HomeIntro>
+          <Account homeLogin />
         </RightPanel>
       </Content>
     </Background>
