@@ -54,7 +54,7 @@ function getAuthErrorMessage(error) {
   return messages[error.code] ?? error.message ?? 'Ocorreu um erro na autenticação.'
 }
 
-function Account() {
+function Account({ appointmentsOnly = false }) {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false)
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -213,15 +213,15 @@ function Account() {
   }
 
   return (
-    <AccountPage id="conta">
-      <AccountCard>
+    <AccountPage id={appointmentsOnly ? 'agendamentos' : 'conta'}>
+      <AccountCard $wide={appointmentsOnly}>
         {user ? (
           <>
-            <AccountTitle>Sua conta</AccountTitle>
+            <AccountTitle>{appointmentsOnly ? 'Seus agendamentos' : 'Sua conta'}</AccountTitle>
             <AccountSubtitle>
               Você está conectado como {user.displayName || user.email}.
             </AccountSubtitle>
-            <AppointmentSectionTitle>Seus agendamentos</AppointmentSectionTitle>
+            {!appointmentsOnly && <AppointmentSectionTitle>Seus agendamentos</AppointmentSectionTitle>}
             {isLoadingAppointments && <p role="status">Carregando agendamentos...</p>}
             {appointmentsError && <p role="alert">{appointmentsError}</p>}
             {!isLoadingAppointments && !appointmentsError && appointments.length === 0 && (
@@ -270,9 +270,15 @@ function Account() {
                 ))}
               </AppointmentList>
             )}
-            <SubmitButton type="button" onClick={handleSignOut} disabled={isLoading}>
-              {isLoading ? 'Saindo...' : 'Sair da conta'}
-            </SubmitButton>
+            {appointmentsOnly ? (
+              <ModeButton type="button" onClick={() => { window.location.hash = '#conta' }}>
+                Voltar à conta
+              </ModeButton>
+            ) : (
+              <SubmitButton type="button" onClick={handleSignOut} disabled={isLoading}>
+                {isLoading ? 'Saindo...' : 'Sair da conta'}
+              </SubmitButton>
+            )}
           </>
         ) : (
           <>

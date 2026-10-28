@@ -12,7 +12,7 @@ export const AccountPage = styled.section`
 `
 
 export const AccountCard = styled.section`
-  width: min(100%, 460px);
+  width: min(100%, ${({ $wide }) => ($wide ? '760px' : '460px')});
   padding: clamp(1.5rem, 5vw, 2.5rem);
   border: 1px solid rgba(214, 168, 79, 0.35);
   border-radius: 8px;

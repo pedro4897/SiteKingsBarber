@@ -3,6 +3,7 @@ import HomeIcon from '../assets/icons8-castelo-48.png'
 import ServicesIcon from '../assets/icons8-barbeiro-100.png'
 import AboutIcon from '../assets/icons8-barbearia-48.png'
 import AccountIcon from '../assets/icons8-usuário-40.png'
+import AppointmentsIcon from '../assets/icons8-agendamentos.svg'
 import {
   Brand,
   BrandLogo,
@@ -19,7 +20,8 @@ const links = [
   { id: 'home', label: 'Home', href: '#home', icon: HomeIcon },
   { id: 'servicos', label: 'Serviços', href: '#servicos', icon: ServicesIcon },
   { id: 'sobre-nos', label: 'Sobre Nós', href: '#sobre-nos', icon: AboutIcon },
-  { id: 'conta', label: 'Conta', href: '#conta', icon: AccountIcon }
+  { id: 'conta', label: 'Conta', href: '#conta', icon: AccountIcon },
+  { id: 'agendamentos', label: 'Agendamentos', href: '#agendamentos', icon: AppointmentsIcon }
 ]
 
 function Navbar({ activeRoute }) {

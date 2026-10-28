@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createGlobalStyle, keyframes, styled } from 'styled-components'
+import { onAuthStateChanged } from 'firebase/auth'
 import Home from './containers/Home'
 import Services from './containers/Services'
 import { services } from './containers/Services/services'
@@ -9,6 +10,7 @@ import Account from './containers/Account'
 import About from './containers/About'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import { firebaseAuth } from './firebase'
 
 const crownSpecs = [
   { id: 1, symbol: '👑', size: 44, left: '8%', top: '12%', duration: 12, delay: 0 },
@@ -93,6 +95,8 @@ const GlobalStyle = createGlobalStyle`
 
 function App() {
   const [route, setRoute] = useState(window.location.hash)
+  const [user, setUser] = useState(firebaseAuth?.currentUser ?? null)
+  const [isAuthReady, setIsAuthReady] = useState(!firebaseAuth)
 
   useEffect(() => {
     const handleRouteChange = () => setRoute(window.location.hash)
@@ -100,7 +104,43 @@ function App() {
     return () => window.removeEventListener('hashchange', handleRouteChange)
   }, [])
 
-  if (route.startsWith('#/agendamento')) {
+  useEffect(() => {
+    if (!firebaseAuth) {
+      return undefined
+    }
+
+    return onAuthStateChanged(firebaseAuth, (currentUser) => {
+      setUser(currentUser)
+      setIsAuthReady(true)
+    })
+  }, [])
+
+  useEffect(() => {
+    if ((route !== '#agendamentos' && route !== '#/agendamentos') || !isAuthReady) {
+      return
+    }
+
+    if (user) {
+      window.sessionStorage.removeItem('kingsbarber-return-to-appointments')
+      return
+    }
+
+    window.sessionStorage.setItem('kingsbarber-return-to-appointments', 'true')
+    window.location.hash = '#conta'
+  }, [route, user, isAuthReady])
+
+  useEffect(() => {
+    if (
+      (route === '#conta' || route === '#/conta') &&
+      user &&
+      window.sessionStorage.getItem('kingsbarber-return-to-appointments') === 'true'
+    ) {
+      window.sessionStorage.removeItem('kingsbarber-return-to-appointments')
+      window.location.hash = '#agendamentos'
+    }
+  }, [route, user])
+
+  if (route === '#/agendamento' || route.startsWith('#/agendamento?')) {
     const query = route.split('?')[1] ?? ''
     const requestedService = new URLSearchParams(query).get('servico')
     const service = services.find((item) => item.name === requestedService) ?? services[0]
@@ -113,10 +153,28 @@ function App() {
     )
   }
 
+  if (
+    (route === '#agendamentos' || route === '#/agendamentos') &&
+    isAuthReady &&
+    user
+  ) {
+    return (
+      <>
+        <Navbar activeRoute="agendamentos" />
+        <PageContent>
+          <Account appointmentsOnly />
+        </PageContent>
+        <Footer />
+      </>
+    )
+  }
+
   const activeRoute = route === '#servicos' || route === '#/servicos'
     ? 'servicos'
     : route === '#conta' || route === '#/conta'
       ? 'conta'
+      : route === '#agendamentos' || route === '#/agendamentos'
+        ? 'conta'
       : route === '#sobre-nos'
         ? 'sobre-nos'
         : 'home'

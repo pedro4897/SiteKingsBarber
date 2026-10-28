@@ -245,9 +245,9 @@ function Booking({ service }) {
 
             <AppointmentForm onSubmit={handleSubmit}>
               <FormField>
-                Nome
+               Nome de quem irá comparecer
                 <input
-                  type="text"
+                  type="text" 
                   autoComplete="name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
