@@ -1,5 +1,39 @@
 import styled from 'styled-components'
 
+const swordFall = `
+  @keyframes sword-fall {
+    0% {
+      transform: translate(-50%, calc(-50% - 100vh)) rotate(-45deg);
+    }
+    78% {
+      transform: translate(-50%, -44%) rotate(-45deg);
+    }
+    90% {
+      transform: translate(-50%, -52%) rotate(-45deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+  }
+`
+
+const swordFallMobile = `
+  @keyframes sword-fall-mobile {
+    0% {
+      transform: translate(-50%, calc(50% - 100vh)) rotate(-135deg);
+    }
+    78% {
+      transform: translate(-50%, 56%) rotate(-135deg);
+    }
+    90% {
+      transform: translate(-50%, 46%) rotate(-135deg);
+    }
+    100% {
+      transform: translate(-50%, 50%) rotate(-135deg);
+    }
+  }
+`
+
 export const Navigation = styled.nav`
   position: fixed;
   top: 0;
@@ -135,32 +169,30 @@ export const NavIcon = styled.img`
   }
 `
 
-export const NavSword = styled.svg`
+export const NavSword = styled.img`
   position: absolute;
-  top: 0;
-  right: -16px;
-  width: 32px;
-  height: 100%;
-  overflow: visible;
+  top: 50%;
+  left: calc(100% + 1.5rem);
+  width: 70.72vh;
+  height: 70.72vh;
+  object-fit: contain;
+  transform: translate(-50%, -50%) rotate(-45deg);
   pointer-events: none;
+  ${({ $animate }) => $animate && `animation: sword-fall 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;`}
+  ${swordFall}
 
   @media (max-width: 700px) {
-    display: none;
-  }
-`
-
-export const NavSwordMobile = styled.svg`
-  display: none;
-
-  @media (max-width: 700px) {
-    position: absolute;
-    bottom: -8px;
+    top: auto;
+    bottom: 0;
     left: 50%;
-    display: block;
-    width: calc(100% - 1.5rem);
-    height: 16px;
-    overflow: visible;
-    transform: translateX(-50%);
-    pointer-events: none;
+    width: calc((100vw - 1.5rem) * 0.7072);
+    height: calc((100vw - 1.5rem) * 0.7072);
+    transform: translate(-50%, 50%) rotate(-135deg);
+    ${({ $animate }) => $animate && `animation: sword-fall-mobile 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;`}
+    ${swordFallMobile}
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `
