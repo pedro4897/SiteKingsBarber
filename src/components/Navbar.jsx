@@ -5,7 +5,7 @@ import ServicesIcon from '../assets/icons8-barbeiro-100.png'
 import AboutIcon from '../assets/icons8-barbearia-48.png'
 import AccountIcon from '../assets/icons8-usuário-40.png'
 import AppointmentsIcon from '../assets/icons8-agendamentos.svg'
-import SwordImage from '../assets/espada.png'
+import SwordImage from '../assets/espada3.png'
 import {
   Brand,
   BrandLogo,

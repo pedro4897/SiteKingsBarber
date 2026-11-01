@@ -3,16 +3,16 @@ import styled from 'styled-components'
 const swordFall = `
   @keyframes sword-fall {
     0% {
-      transform: translate(-50%, calc(-50% - 100vh)) rotate(-45deg);
+      transform: translate(-50%, calc(-50% - 100vh)) rotate(0deg);
     }
     78% {
-      transform: translate(-50%, -44%) rotate(-45deg);
+      transform: translate(-50%, -44%) rotate(0deg);
     }
     90% {
-      transform: translate(-50%, -52%) rotate(-45deg);
+      transform: translate(-50%, -52%) rotate(0deg);
     }
     100% {
-      transform: translate(-50%, -50%) rotate(-45deg);
+      transform: translate(-50%, -50%) rotate(0deg);
     }
   }
 `
@@ -20,16 +20,16 @@ const swordFall = `
 const swordFallMobile = `
   @keyframes sword-fall-mobile {
     0% {
-      transform: translate(-50%, calc(50% - 100vh)) rotate(-135deg);
+      transform: translate(-50%, calc(50% - 100vh)) rotate(-90deg);
     }
     78% {
-      transform: translate(-50%, 56%) rotate(-135deg);
+      transform: translate(-50%, 56%) rotate(-90deg);
     }
     90% {
-      transform: translate(-50%, 46%) rotate(-135deg);
+      transform: translate(-50%, 46%) rotate(-90deg);
     }
     100% {
-      transform: translate(-50%, 50%) rotate(-135deg);
+      transform: translate(-50%, 50%) rotate(-90deg);
     }
   }
 `
@@ -50,6 +50,7 @@ export const Navigation = styled.nav`
   backdrop-filter: blur(12px);
 
   @media (max-width: 700px) {
+    z-index: 10;
     bottom: auto;
     width: 100%;
     min-height: 6.5rem;
@@ -63,6 +64,8 @@ export const Navigation = styled.nav`
 `
 
 export const Brand = styled.a`
+  position: relative;
+  z-index: 1;
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -105,6 +108,8 @@ export const BrandName = styled.span`
 `
 
 export const NavLinks = styled.div`
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -171,23 +176,30 @@ export const NavIcon = styled.img`
 
 export const NavSword = styled.img`
   position: absolute;
+  z-index: 0;
   top: 50%;
-  left: calc(100% + 1.5rem);
-  width: 70.72vh;
-  height: 70.72vh;
+  left: calc(100% + 0.5rem);
+  width: 90vh;
+  height: 90vh;
   object-fit: contain;
-  transform: translate(-50%, -50%) rotate(-45deg);
+  transform: translate(-50%, -50%) rotate(0deg);
   pointer-events: none;
   ${({ $animate }) => $animate && `animation: sword-fall 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;`}
   ${swordFall}
+
+  @media (min-width: 701px) and (max-width: 900px) {
+    width: 75vh;
+    height: 75vh;
+  }
 
   @media (max-width: 700px) {
     top: auto;
     bottom: 0;
     left: 50%;
-    width: calc((100vw - 1.5rem) * 0.7072);
-    height: calc((100vw - 1.5rem) * 0.7072);
-    transform: translate(-50%, 50%) rotate(-135deg);
+    width: calc((100vw - 1.5rem) * 0.75);
+    height: calc((100vw - 1.5rem) * 0.75);
+    opacity: 0.55;
+    transform: translate(-50%, 50%) rotate(-90deg);
     ${({ $animate }) => $animate && `animation: sword-fall-mobile 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;`}
     ${swordFallMobile}
   }
