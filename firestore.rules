@@ -8,7 +8,7 @@ service cloud.firestore {
     }
 
     function validAppointment() {
-      return request.resource.data.service is string
+      return request.resource.data['service'] is string
         && request.resource.data.date is string
         && request.resource.data.date.size() == 10
         && request.resource.data.time is string
@@ -40,7 +40,7 @@ service cloud.firestore {
           'whatsapp',
           'createdAt'
         ])
-        && request.resource.data.service is string
+        && request.resource.data['service'] is string
         && request.resource.data.date is string
         && request.resource.data.date.size() == 10
         && request.resource.data.time is string
