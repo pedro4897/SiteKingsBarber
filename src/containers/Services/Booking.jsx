@@ -137,9 +137,11 @@ function Booking({ service }) {
     setIsSaving(true)
     setNotice('')
     try {
-      if (user && firebaseDb) {
-        await addDoc(collection(firebaseDb, 'users', user.uid, 'appointments'), {
+      if (firebaseDb) {
+        await addDoc(collection(firebaseDb, 'appointments'), {
           ...appointment,
+          userId: user?.uid ?? null,
+          status: 'pending',
           createdAt: serverTimestamp()
         })
       } else {
@@ -163,10 +165,16 @@ function Booking({ service }) {
       </ScheduleHeader>
 
       <ScheduleContent>
-        <ScheduleTitle>{confirmedAppointment ? 'Agendamento confirmado' : 'Escolha seu horário'}</ScheduleTitle>
+        <ScheduleTitle>
+          {confirmedAppointment
+            ? firebaseDb ? 'Solicitação enviada' : 'Agendamento salvo localmente'
+            : 'Escolha seu horário'}
+        </ScheduleTitle>
         <ScheduleSubtitle>
           {confirmedAppointment
-            ? 'Confira os dados do seu agendamento.'
+            ? firebaseDb
+              ? 'A barbearia avaliará o pedido e atualizará o status.'
+              : 'Configure o Firebase para compartilhar pedidos com a barbearia.'
             : 'Selecione uma data e um horário para continuar.'}
         </ScheduleSubtitle>
 
@@ -178,11 +186,16 @@ function Booking({ service }) {
         {confirmedAppointment ? (
           <Confirmation>
             <h2>
-              {user && firebaseDb
-                ? 'Agendamento salvo na sua conta'
+              {firebaseDb
+                ? 'Solicitação enviada para a barbearia'
                 : 'Agendamento salvo neste dispositivo'}
             </h2>
-            <p>A barbearia ainda não foi notificada. Confirme o horário diretamente com a equipe.</p>
+            {!firebaseDb && (
+              <p role="alert">
+                Este pedido está salvo apenas neste dispositivo e não aparecerá para o barbeiro.
+                Configure o Firebase para compartilhar solicitações com a barbearia.
+              </p>
+            )}
             <p><strong>Nome:</strong> {confirmedAppointment.name}</p>
             <p><strong>WhatsApp:</strong> {confirmedAppointment.whatsapp}</p>
             <p><strong>Data:</strong> {formatDate(confirmedAppointment.date)}</p>

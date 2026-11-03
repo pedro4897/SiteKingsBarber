@@ -7,7 +7,7 @@ import {
   signOut,
   updateProfile
 } from 'firebase/auth'
-import { collection, deleteDoc, doc, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { collection, deleteDoc, onSnapshot, orderBy, query, where } from 'firebase/firestore'
 import { firebaseAuth, firebaseConfigError, firebaseDb } from '../../firebase'
 import {
   AppointmentItem,
@@ -36,6 +36,16 @@ function formatAppointmentDate(dateValue) {
     month: 'long',
     year: 'numeric'
   }).format(new Date(`${dateValue}T12:00:00`))
+}
+
+function getAppointmentStatus(status) {
+  const labels = {
+    pending: 'Aguardando resposta',
+    accepted: 'Aceito',
+    rejected: 'Recusado'
+  }
+
+  return labels[status] ?? labels.pending
 }
 
 function getAuthErrorMessage(error) {
@@ -93,25 +103,65 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
 
     setIsLoadingAppointments(true)
     setAppointmentsError('')
-    const appointmentsQuery = query(
+    let accountAppointments = []
+    let legacyAppointments = []
+    let hasAccountSnapshot = false
+    let hasLegacySnapshot = false
+
+    const updateAppointments = () => {
+      setAppointments([...accountAppointments, ...legacyAppointments].sort((first, second) => (
+        (second.createdAt?.toMillis?.() ?? 0) - (first.createdAt?.toMillis?.() ?? 0)
+      )))
+      setIsLoadingAppointments(hasAccountSnapshot === false || hasLegacySnapshot === false)
+    }
+
+    const accountAppointmentsQuery = query(
+      collection(firebaseDb, 'appointments'),
+      where('userId', '==', user.uid)
+    )
+    const legacyAppointmentsQuery = query(
       collection(firebaseDb, 'users', user.uid, 'appointments'),
       orderBy('createdAt', 'desc')
     )
 
-    return onSnapshot(
-      appointmentsQuery,
+    const unsubscribeAccountAppointments = onSnapshot(
+      accountAppointmentsQuery,
       (snapshot) => {
-        setAppointments(snapshot.docs.map((document) => ({
+        accountAppointments = snapshot.docs.map((document) => ({
           id: document.id,
+          reference: document.ref,
           ...document.data()
-        })))
-        setIsLoadingAppointments(false)
+        }))
+        hasAccountSnapshot = true
+        updateAppointments()
       },
       (error) => {
         setAppointmentsError(`Não foi possível carregar seus agendamentos: ${error.message}`)
         setIsLoadingAppointments(false)
       }
     )
+
+    const unsubscribeLegacyAppointments = onSnapshot(
+      legacyAppointmentsQuery,
+      (snapshot) => {
+        legacyAppointments = snapshot.docs.map((document) => ({
+          id: document.id,
+          reference: document.ref,
+          ...document.data()
+        }))
+        hasLegacySnapshot = true
+        updateAppointments()
+      },
+      (error) => {
+        setAppointmentsError(`Não foi possível carregar seus agendamentos antigos: ${error.message}`)
+        setIsLoadingAppointments(false)
+      }
+    )
+
+    return () => {
+      unsubscribeAccountAppointments()
+      unsubscribeLegacyAppointments()
+    }
   }, [user])
 
   const handleSubmit = async (event) => {
@@ -195,17 +245,17 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
     }
   }
 
-  const handleDeleteAppointment = async (appointmentId) => {
+  const handleDeleteAppointment = async (appointment) => {
     if (!firebaseDb || !user) {
       setAppointmentsError('Não foi possível excluir o agendamento. Entre novamente na sua conta.')
       return
     }
 
-    setDeletingAppointmentId(appointmentId)
+    setDeletingAppointmentId(appointment.id)
     setAppointmentsError('')
 
     try {
-      await deleteDoc(doc(firebaseDb, 'users', user.uid, 'appointments', appointmentId))
+      await deleteDoc(appointment.reference)
       setAppointmentToDelete(null)
     } catch (error) {
       setAppointmentsError(`Não foi possível excluir o agendamento: ${error.message}`)
@@ -238,6 +288,7 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
                     <h2>{appointment.service}</h2>
                     <p><strong>Data:</strong> {formatAppointmentDate(appointment.date)}</p>
                     <p><strong>Horário:</strong> {appointment.time}</p>
+                    <p><strong>Status:</strong> {getAppointmentStatus(appointment.status)}</p>
                     <p><strong>Nome:</strong> {appointment.name}</p>
                     <p><strong>WhatsApp:</strong> {appointment.whatsapp}</p>
                     {appointmentToDelete === appointment.id ? (
@@ -246,7 +297,7 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
                         <AppointmentActions>
                           <AppointmentDeleteButton
                             type="button"
-                            onClick={() => handleDeleteAppointment(appointment.id)}
+                            onClick={() => handleDeleteAppointment(appointment)}
                             disabled={deletingAppointmentId === appointment.id}
                           >
                             {deletingAppointmentId === appointment.id ? 'Excluindo...' : 'Sim, excluir'}

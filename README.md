@@ -2,6 +2,12 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## Área do barbeiro
+
+A conta `pedro123@gmail.com` pode acessar **Barbeiro** pela navegação após entrar. Para usar a área, publique as regras de [firestore.rules](./firestore.rules) no Firebase; elas permitem que somente essa conta consulte e atualize as solicitações. Se trocar a conta do barbeiro, atualize o e-mail em `src/containers/Barber/access.js` e em `firestore.rules`.
+
+Agendamentos feitos com o Firebase configurado são salvos em uma coleção compartilhada e aparecem na área do barbeiro, inclusive pedidos de clientes sem login. A área também consulta as subcoleções antigas de agendamentos. Sem configuração do Firebase, os pedidos ficam apenas no dispositivo e não podem ser gerenciados pela barbearia.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

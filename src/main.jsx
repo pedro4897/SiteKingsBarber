@@ -8,6 +8,8 @@ import { services } from './containers/Services/services'
 import Booking from './containers/Services/Booking'
 import Account from './containers/Account'
 import About from './containers/About'
+import Barber from './containers/Barber'
+import { isBarberAccount } from './containers/Barber/access'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { firebaseAuth } from './firebase'
@@ -134,6 +136,7 @@ function App() {
   const [route, setRoute] = useState(window.location.hash)
   const [user, setUser] = useState(firebaseAuth?.currentUser ?? null)
   const [isAuthReady, setIsAuthReady] = useState(!firebaseAuth)
+  const isBarber = isBarberAccount(user)
 
   useEffect(() => {
     const handleRouteChange = () => setRoute(window.location.hash)
@@ -177,6 +180,16 @@ function App() {
     }
   }, [route, user])
 
+  useEffect(() => {
+    if (
+      (route === '#barbeiro' || route === '#/barbeiro') &&
+      isAuthReady &&
+      !isBarber
+    ) {
+      window.location.hash = user ? '#home' : '#conta'
+    }
+  }, [route, user, isAuthReady, isBarber])
+
   if (route === '#/agendamento' || route.startsWith('#/agendamento?')) {
     const query = route.split('?')[1] ?? ''
     const requestedService = new URLSearchParams(query).get('servico')
@@ -193,28 +206,33 @@ function App() {
   }
 
   const isAppointmentsRoute = route === '#agendamentos' || route === '#/agendamentos'
+  const isBarberRoute = route === '#barbeiro' || route === '#/barbeiro'
   const activeRoute = route === '#servicos' || route === '#/servicos'
     ? 'servicos'
     : route === '#conta' || route === '#/conta'
       ? 'conta'
       : isAppointmentsRoute
         ? user ? 'agendamentos' : 'conta'
-        : route === '#sobre-nos' || route === '#/sobre-nos'
-          ? 'sobre-nos'
-          : 'home'
+        : isBarberRoute && isBarber
+          ? 'barbeiro'
+          : route === '#sobre-nos' || route === '#/sobre-nos'
+            ? 'sobre-nos'
+            : 'home'
   const page = activeRoute === 'servicos'
     ? <Services />
     : activeRoute === 'sobre-nos'
       ? <About />
       : activeRoute === 'conta'
         ? <Account />
-        : activeRoute === 'agendamentos' && isAuthReady && user
-          ? <Account appointmentsOnly />
-          : <Home />
+        : activeRoute === 'barbeiro' && isAuthReady && isBarber
+          ? <Barber />
+          : activeRoute === 'agendamentos' && isAuthReady && user
+            ? <Account appointmentsOnly />
+            : <Home />
 
   return (
     <>
-      <Navbar activeRoute={activeRoute} />
+      <Navbar activeRoute={activeRoute} isBarber={isBarber} />
       <PageContent>
         <PageTransition key={activeRoute}>
           {page}

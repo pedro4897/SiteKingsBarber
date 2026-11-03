@@ -22,10 +22,11 @@ const links = [
   { id: 'servicos', label: 'Serviços', href: '#servicos', icon: ServicesIcon },
   { id: 'sobre-nos', label: 'Sobre Nós', href: '#sobre-nos', icon: AboutIcon },
   { id: 'conta', label: 'Conta', href: '#conta', icon: AccountIcon },
-  { id: 'agendamentos', label: 'Agendamentos', href: '#agendamentos', icon: AppointmentsIcon }
+  { id: 'agendamentos', label: 'Agendamentos', href: '#agendamentos', icon: AppointmentsIcon },
+  { id: 'barbeiro', label: 'Barbeiro', href: '#barbeiro', icon: ServicesIcon, barberOnly: true }
 ]
 
-function Navbar({ activeRoute }) {
+function Navbar({ activeRoute, isBarber }) {
   const previousRoute = useRef(activeRoute)
   const [animateSword, setAnimateSword] = useState(false)
 
@@ -43,7 +44,7 @@ function Navbar({ activeRoute }) {
         <BrandName>KingsBarber</BrandName>
       </Brand>
       <NavLinks>
-        {links.map((link) => (
+        {links.filter((link) => !link.barberOnly || isBarber).map((link) => (
           <NavLink
             key={link.id}
             href={link.href}

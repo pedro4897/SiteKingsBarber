@@ -2,12 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/appointments/{appointmentId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.data.keys().hasOnly([
+    function isBarber() {
+      return request.auth != null
+        && request.auth.token.email == 'pedro123@gmail.com';
+    }
+
+    function validAppointment() {
+      return request.resource.data.service is string
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10
+        && request.resource.data.time is string
+        && request.resource.data.time.size() == 5
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.whatsapp is string
+        && request.resource.data.whatsapp.size() >= 10
+        && request.resource.data.whatsapp.size() <= 20
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt is timestamp;
+    }
+
+    function validLegacyAppointment() {
+      return request.resource.data.keys().hasOnly([
           'service',
           'date',
           'time',
@@ -35,6 +52,58 @@ service cloud.firestore {
         && request.resource.data.whatsapp.size() >= 10
         && request.resource.data.whatsapp.size() <= 20
         && request.resource.data.createdAt is timestamp;
+    }
+
+    function isValidStatusUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.keys().hasAll(['status'])
+        && request.resource.data.status in ['accepted', 'rejected'];
+    }
+
+    match /appointments/{appointmentId} {
+      allow read: if isBarber()
+        || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if validAppointment()
+        && request.resource.data.keys().hasOnly([
+          'service',
+          'date',
+          'time',
+          'name',
+          'whatsapp',
+          'userId',
+          'status',
+          'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'service',
+          'date',
+          'time',
+          'name',
+          'whatsapp',
+          'userId',
+          'status',
+          'createdAt'
+        ])
+        && (
+          (request.auth == null && request.resource.data.userId == null)
+          || (request.auth != null && request.resource.data.userId == request.auth.uid)
+        );
+      allow update: if isBarber() && isValidStatusUpdate();
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    match /{path=**}/appointments/{appointmentId} {
+      allow read: if isBarber();
+      allow update: if isBarber() && isValidStatusUpdate();
+    }
+
+    match /users/{userId}/appointments/{appointmentId} {
+      allow read: if (request.auth != null && request.auth.uid == userId) || isBarber();
+      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && validLegacyAppointment();
     }
   }
 }
