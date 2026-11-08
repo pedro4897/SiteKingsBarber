@@ -46,8 +46,10 @@ export const Navigation = styled.nav`
   align-items: flex-start;
   gap: 1.25rem;
   padding: 1.25rem 0.75rem;
-  background: rgba(24, 26, 29, 0.94);
-  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(214, 168, 79, 0.28);
+  background: linear-gradient(165deg, rgba(65, 50, 29, 0.98) 0%, rgba(30, 29, 27, 0.97) 38%, rgba(17, 18, 20, 0.98) 100%);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(16px);
 
   @media (max-width: 700px) {
     z-index: 10;
@@ -60,6 +62,8 @@ export const Navigation = styled.nav`
     gap: 0.15rem;
     padding: 0.3rem 0.5rem 0.4rem;
     border-right: 0;
+    border-bottom: 1px solid rgba(214, 168, 79, 0.28);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
   }
 `
 

@@ -228,7 +228,7 @@ function App() {
           ? <Barber />
           : activeRoute === 'agendamentos' && isAuthReady && user
             ? <Account appointmentsOnly />
-            : <Home />
+            : <Home user={user} />
 
   return (
     <>

@@ -24,6 +24,31 @@ export const HomeIntro = styled.div`
     font-size: clamp(0.95rem, 1.5vw, 1.1rem);
     line-height: 1.6;
   }
+
+  ${({ $loggedIn }) => $loggedIn && `
+    width: 100%;
+    text-align: center;
+
+    p {
+      margin-right: auto;
+      margin-left: auto;
+    }
+  `}
+`
+
+export const BarbershopImagePlaceholder = styled.div`
+  display: flex;
+  min-height: 250px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  border: 1px dashed rgba(244, 212, 138, 0.65);
+  border-radius: 12px;
+  color: #e2d4d4;
+  background: linear-gradient(135deg, rgba(24, 26, 29, 0.55), rgba(24, 26, 29, 0.9));
+  font-size: 0.95rem;
+  text-align: center;
 `
 
 export const ImageContainer = styled.div`
@@ -33,7 +58,7 @@ export const ImageContainer = styled.div`
   min-height: 0;
   padding: 1rem;
   overflow: hidden;
-  background: #000;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,6 +101,14 @@ export const Content = styled.div`
   min-height: 70vh;
   align-items: stretch;
 
+  ${({ $loggedIn }) => $loggedIn && `
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 8px minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: 24px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
+  `}
+
   @media (max-width: 700px) {
     width: 100%;
     grid-template-columns: minmax(0, 1fr);
@@ -89,7 +122,7 @@ export const LeftPanel = styled.div`
   z-index: 1;
   width: calc(100% + 24px);
   margin-right: -24px;
-  background: #000;
+  background: transparent;
   border-radius: 24px 0 0 24px;
   clip-path: polygon(0 0, 100% 0, calc(100% - 24px) 100%, 0 100%);
   padding: 2rem 3rem 2rem 2rem;
@@ -116,8 +149,15 @@ export const PoleColumn = styled.div`
   justify-content: center;
   padding: 0;
 
+  ${({ $loggedIn }) => $loggedIn && `
+    grid-column: 1;
+    grid-row: 1;
+    height: 8px;
+    overflow: hidden;
+  `}
+
   @media (max-width: 700px) {
-    display: none;
+    ${({ $loggedIn }) => !$loggedIn && 'display: none;'}
   }
 `
 
@@ -135,15 +175,38 @@ export const BarberPole = styled.div`
     #0f56a3 24px,
     #0f56a3 36px
   );
+  background-size: 50.91px 50.91px;
+  background-position: 0 0;
+  animation: ${({ $loggedIn }) => $loggedIn
+    ? 'barber-pole-fall 1.2s linear infinite'
+    : 'barber-pole-sideways 1.2s linear infinite'};
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
-  clip-path: polygon(35% 0, 100% 0, 65% 100%, 0 100%);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 700px) {
-    clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+  ${({ $loggedIn }) => $loggedIn && `
+    height: 100%;
+    min-height: 0;
+    box-shadow: none;
+    clip-path: none;
+  `}
+
+  @keyframes barber-pole-fall {
+    to {
+      background-position: 0 50.91px;
+    }
+  }
+
+  @keyframes barber-pole-sideways {
+    to {
+      background-position: 50.91px 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `
 
@@ -162,6 +225,15 @@ export const RightPanel = styled.div`
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
   padding: clamp(1.5rem, 4vw, 3rem);
   
+  ${({ $loggedIn }) => $loggedIn && `
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    border-radius: 0;
+    clip-path: none;
+  `}
 
   @media (max-width: 700px) {
     width: 100%;
@@ -171,6 +243,12 @@ export const RightPanel = styled.div`
     clip-path: none;
     padding: 1.25rem;
   }
+
+  ${({ $loggedIn }) => $loggedIn && `
+    @media (max-width: 700px) {
+      padding: 1.25rem;
+    }
+  `}
 `
 
 export const ActionButton = styled.button`
