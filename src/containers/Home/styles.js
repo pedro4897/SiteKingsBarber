@@ -32,23 +32,9 @@ export const HomeIntro = styled.div`
     p {
       margin-right: auto;
       margin-left: auto;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
     }
   `}
-`
-
-export const BarbershopImagePlaceholder = styled.div`
-  display: flex;
-  min-height: 250px;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  margin-top: 0.5rem;
-  border: 1px dashed rgba(244, 212, 138, 0.65);
-  border-radius: 12px;
-  color: #e2d4d4;
-  background: linear-gradient(135deg, rgba(24, 26, 29, 0.55), rgba(24, 26, 29, 0.9));
-  font-size: 0.95rem;
-  text-align: center;
 `
 
 export const ImageContainer = styled.div`
@@ -84,9 +70,19 @@ export const Background = styled.div`
   background: transparent;
   scroll-margin-top: 5.5rem;
 
+  ${({ $loggedIn }) => $loggedIn && `
+    min-height: 100vh;
+    padding: 0;
+  `}
+
   @media (max-width: 700px) {
     min-height: auto;
     padding: 1.25rem 0.75rem;
+
+    ${({ $loggedIn }) => $loggedIn && `
+      min-height: calc(100vh - 8rem);
+      padding: 0;
+    `}
   }
 `
 
@@ -102,11 +98,14 @@ export const Content = styled.div`
   align-items: stretch;
 
   ${({ $loggedIn }) => $loggedIn && `
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: 8px minmax(0, 1fr);
     overflow: hidden;
-    border-radius: 24px;
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(214, 168, 79, 0.8);
+    background: transparent;
   `}
 
   @media (max-width: 700px) {
@@ -114,6 +113,64 @@ export const Content = styled.div`
     grid-template-columns: minmax(0, 1fr);
     gap: 0.75rem;
     min-height: 0;
+    ${({ $loggedIn }) => $loggedIn && `
+      min-height: calc(100vh - 8rem);
+      gap: 0;
+    `}
+  }
+`
+
+export const HomeBanner = styled.div`
+  position: relative;
+  isolation: isolate;
+  flex: 0 0 auto;
+  width: calc(100% + 6rem);
+  height: clamp(220px, 38vh, 440px);
+  margin: clamp(2rem, 6vh, 5rem) 0 0 -3rem;
+  overflow: hidden;
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to right,
+        #181a1d 0%,
+        rgba(24, 26, 29, 0.55) 24px,
+        transparent 140px,
+        transparent calc(100% - 140px),
+        rgba(24, 26, 29, 0.55) calc(100% - 24px),
+        #181a1d 100%
+      ),
+      linear-gradient(
+        to bottom,
+        #181a1d 0%,
+        transparent 72px,
+        transparent calc(100% - 72px),
+        #181a1d 100%
+      );
+    content: '';
+    pointer-events: none;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.95;
+    filter: brightness(1) saturate(0.95);
+  }
+
+  @media (min-width: 1200px) {
+    height: clamp(360px, 48vh, 600px);
+  }
+
+  @media (max-width: 700px) {
+    width: calc(100% + 2.5rem);
+    height: clamp(180px, 30vh, 300px);
+    margin-left: -1.25rem;
   }
 `
 
@@ -233,6 +290,8 @@ export const RightPanel = styled.div`
     margin: 0;
     border-radius: 0;
     clip-path: none;
+    background: transparent;
+    box-shadow: none;
   `}
 
   @media (max-width: 700px) {
@@ -247,6 +306,7 @@ export const RightPanel = styled.div`
   ${({ $loggedIn }) => $loggedIn && `
     @media (max-width: 700px) {
       padding: 1.25rem;
+      border-radius: 0;
     }
   `}
 `

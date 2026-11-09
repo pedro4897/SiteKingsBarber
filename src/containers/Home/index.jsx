@@ -1,9 +1,9 @@
 import {
   BarberImage,
-  BarbershopImagePlaceholder,
   Background,
   BarberPole,
   Content,
+  HomeBanner,
   HomeIntro,
   ImageContainer,
   LeftPanel,
@@ -12,13 +12,14 @@ import {
   Title
 } from './styles'
 import LogoKings from './Logo Kings Barber.png'
+import Banner from '../../assets/banner.jpg'
 import Account from '../Account'
 
 function Home({ user }) {
   const displayName = user?.displayName || user?.email || 'cliente'
 
   return (
-    <Background id="home">
+    <Background id="home" $loggedIn={Boolean(user)}>
       <Content $loggedIn={Boolean(user)}>
         {!user && (
           <LeftPanel>
@@ -42,12 +43,9 @@ function Home({ user }) {
             </p>
           </HomeIntro>
           {user ? (
-            <BarbershopImagePlaceholder
-              role="img"
-              aria-label="Espaço reservado para uma imagem da barbearia"
-            >
-              Imagem da barbearia
-            </BarbershopImagePlaceholder>
+            <HomeBanner aria-hidden="true">
+              <img src={Banner} alt="" />
+            </HomeBanner>
           ) : (
             <Account homeLogin />
           )}
