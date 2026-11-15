@@ -46,6 +46,86 @@ export const RequestList = styled.div`
   gap: 0.75rem;
 `
 
+export const RequestHistory = styled.details`
+  margin-top: 1.5rem;
+
+  > summary {
+    color: #f4d48a;
+    cursor: pointer;
+    font-weight: 700;
+  }
+`
+
+export const AvailabilitySection = styled.details`
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(214, 168, 79, 0.35);
+  border-radius: 6px;
+  background: #181a1d;
+
+  > summary {
+    color: #f4d48a;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  [role='status'] {
+    color: #f4d48a;
+  }
+
+  [role='alert'] {
+    color: #ffb6a8;
+  }
+`
+
+export const AvailabilityForm = styled.form`
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+`
+
+export const AvailabilityDays = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+`
+
+export const AvailabilityDay = styled.fieldset`
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid rgba(214, 168, 79, 0.28);
+  border-radius: 4px;
+
+  legend {
+    padding: 0 0.35rem;
+    color: #f4d48a;
+  }
+
+  label {
+    display: grid;
+    gap: 0.35rem;
+    color: #e4d7c4;
+    font-size: 0.85rem;
+  }
+
+  label:first-of-type {
+    display: flex;
+    align-items: center;
+  }
+
+  input[type='time'] {
+    min-height: 38px;
+    padding: 0.35rem;
+    border: 1px solid rgba(214, 168, 79, 0.35);
+    border-radius: 4px;
+    color: #f5ead7;
+    background: #222426;
+    font: inherit;
+  }
+`
+
 export const RequestItem = styled.article`
   display: grid;
   gap: 0.45rem;
@@ -75,6 +155,36 @@ export const RequestActions = styled.div`
   margin-top: 0.5rem;
 `
 
+export const RejectForm = styled.form`
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`
+
+export const RequestReason = styled.label`
+  display: grid;
+  gap: 0.5rem;
+  color: #e4d7c4;
+  font-size: 0.9rem;
+
+  textarea {
+    width: 100%;
+    min-height: 5rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(214, 168, 79, 0.35);
+    border-radius: 4px;
+    outline: none;
+    color: #f5ead7;
+    background: #181a1d;
+    font: inherit;
+    resize: vertical;
+  }
+
+  textarea:focus {
+    border-color: #d6a84f;
+  }
+`
+
 export const RequestButton = styled.button`
   min-height: 40px;
   padding: 0.55rem 0.85rem;
@@ -99,7 +209,13 @@ export const RequestButton = styled.button`
 
 export const RequestStatus = styled.strong`
   color: ${({ $status }) => (
-    $status === 'accepted' ? '#9bd19b' : $status === 'rejected' ? '#ffb6a8' : '#f4d48a'
+    $status === 'accepted'
+      ? '#9bd19b'
+      : $status === 'rejected'
+        ? '#ffb6a8'
+        : $status === 'cancelled'
+          ? '#b8aa99'
+          : '#f4d48a'
   )};
   font-size: 0.9rem;
 `

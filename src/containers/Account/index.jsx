@@ -7,11 +7,20 @@ import {
   signOut,
   updateProfile
 } from 'firebase/auth'
-import { collection, deleteDoc, onSnapshot, orderBy, query, where } from 'firebase/firestore'
+import {
+  collection,
+  deleteDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+  where
+} from 'firebase/firestore'
 import { firebaseAuth, firebaseConfigError, firebaseDb } from '../../firebase'
 import {
   AppointmentItem,
   AppointmentList,
+  AppointmentHistory,
   AppointmentActions,
   AppointmentDeleteButton,
   AppointmentConfirm,
@@ -42,10 +51,20 @@ function getAppointmentStatus(status) {
   const labels = {
     pending: 'Aguardando resposta',
     accepted: 'Aceito',
-    rejected: 'Recusado'
+    rejected: 'Recusado',
+    cancelled: 'Cancelado por você'
   }
 
   return labels[status] ?? labels.pending
+}
+
+function canCancelAppointment(appointment) {
+  const appointmentDate = appointment.scheduledAt?.toDate?.()
+    ?? new Date(`${appointment.date}T${appointment.time}:00`)
+  return appointment.status === 'accepted'
+    && appointmentDate instanceof Date
+    && !Number.isNaN(appointmentDate.getTime())
+    && appointmentDate.getTime() > Date.now()
 }
 
 function getAuthErrorMessage(error) {
@@ -75,6 +94,8 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
   const [appointmentsError, setAppointmentsError] = useState('')
   const [appointmentToDelete, setAppointmentToDelete] = useState(null)
   const [deletingAppointmentId, setDeletingAppointmentId] = useState('')
+  const [appointmentToCancel, setAppointmentToCancel] = useState(null)
+  const [cancellingAppointmentId, setCancellingAppointmentId] = useState('')
   const [notice, setNotice] = useState(firebaseConfigError)
   const emailInput = useRef(null)
 
@@ -264,6 +285,114 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
     }
   }
 
+  const handleCancelAppointment = async (appointment) => {
+    if (!firebaseDb || !user) {
+      setAppointmentsError('Não foi possível cancelar o agendamento. Entre novamente na sua conta.')
+      return
+    }
+
+    setCancellingAppointmentId(appointment.id)
+    setAppointmentsError('')
+
+    try {
+      await updateDoc(appointment.reference, { status: 'cancelled' })
+      setAppointmentToCancel(null)
+    } catch (error) {
+      setAppointmentsError(`Não foi possível cancelar o agendamento: ${error.message}`)
+    } finally {
+      setCancellingAppointmentId('')
+    }
+  }
+
+  const activeAppointments = appointments.filter(
+    (appointment) => !['rejected', 'cancelled'].includes(appointment.status)
+  )
+  const historyAppointments = appointments.filter(
+    (appointment) => ['rejected', 'cancelled'].includes(appointment.status)
+  )
+
+  const renderAppointment = (appointment) => {
+    const status = appointment.status ?? 'pending'
+    const canDelete = status === 'pending'
+    const canCancel = canCancelAppointment(appointment)
+
+    return (
+      <AppointmentItem key={appointment.id}>
+        <h2>{appointment.service}</h2>
+        <p><strong>Data:</strong> {formatAppointmentDate(appointment.date)}</p>
+        <p><strong>Horário:</strong> {appointment.time}</p>
+        <p><strong>Status:</strong> {getAppointmentStatus(status)}</p>
+        {status === 'rejected' && appointment.rejectionReason && (
+          <p><strong>Motivo da recusa:</strong> {appointment.rejectionReason}</p>
+        )}
+        <p><strong>Nome:</strong> {appointment.name}</p>
+        <p><strong>WhatsApp:</strong> {appointment.whatsapp}</p>
+        {canCancel && appointmentToCancel === appointment.id && (
+          <AppointmentConfirm>
+            <p>Tem certeza que deseja cancelar este agendamento aceito?</p>
+            <AppointmentActions>
+              <AppointmentDeleteButton
+                type="button"
+                onClick={() => handleCancelAppointment(appointment)}
+                disabled={cancellingAppointmentId === appointment.id}
+              >
+                {cancellingAppointmentId === appointment.id ? 'Cancelando...' : 'Confirmar cancelamento'}
+              </AppointmentDeleteButton>
+              <AppointmentDeleteButton
+                type="button"
+                $secondary
+                onClick={() => setAppointmentToCancel(null)}
+                disabled={cancellingAppointmentId === appointment.id}
+              >
+                Voltar
+              </AppointmentDeleteButton>
+            </AppointmentActions>
+          </AppointmentConfirm>
+        )}
+        {canCancel && appointmentToCancel !== appointment.id && (
+          <AppointmentDeleteButton
+            type="button"
+            onClick={() => setAppointmentToCancel(appointment.id)}
+            disabled={Boolean(cancellingAppointmentId || deletingAppointmentId)}
+          >
+            Cancelar agendamento
+          </AppointmentDeleteButton>
+        )}
+        {canDelete && appointmentToDelete === appointment.id && (
+          <AppointmentConfirm>
+            <p>Tem certeza que deseja excluir este agendamento?</p>
+            <AppointmentActions>
+              <AppointmentDeleteButton
+                type="button"
+                onClick={() => handleDeleteAppointment(appointment)}
+                disabled={deletingAppointmentId === appointment.id}
+              >
+                {deletingAppointmentId === appointment.id ? 'Excluindo...' : 'Sim, excluir'}
+              </AppointmentDeleteButton>
+              <AppointmentDeleteButton
+                type="button"
+                $secondary
+                onClick={() => setAppointmentToDelete(null)}
+                disabled={deletingAppointmentId === appointment.id}
+              >
+                Voltar
+              </AppointmentDeleteButton>
+            </AppointmentActions>
+          </AppointmentConfirm>
+        )}
+        {canDelete && appointmentToDelete !== appointment.id && (
+          <AppointmentDeleteButton
+            type="button"
+            onClick={() => setAppointmentToDelete(appointment.id)}
+            disabled={Boolean(deletingAppointmentId || cancellingAppointmentId)}
+          >
+            Excluir agendamento
+          </AppointmentDeleteButton>
+        )}
+      </AppointmentItem>
+    )
+  }
+
   return (
     <AccountPage
       id={homeLogin ? undefined : appointmentsOnly ? 'agendamentos' : 'conta'}
@@ -281,49 +410,18 @@ function Account({ appointmentsOnly = false, homeLogin = false }) {
             {appointmentsOnly && !isLoadingAppointments && !appointmentsError && appointments.length === 0 && (
               <p>Você ainda não tem agendamentos.</p>
             )}
-            {appointmentsOnly && appointments.length > 0 && (
+            {appointmentsOnly && activeAppointments.length > 0 && (
               <AppointmentList>
-                {appointments.map((appointment) => (
-                  <AppointmentItem key={appointment.id}>
-                    <h2>{appointment.service}</h2>
-                    <p><strong>Data:</strong> {formatAppointmentDate(appointment.date)}</p>
-                    <p><strong>Horário:</strong> {appointment.time}</p>
-                    <p><strong>Status:</strong> {getAppointmentStatus(appointment.status)}</p>
-                    <p><strong>Nome:</strong> {appointment.name}</p>
-                    <p><strong>WhatsApp:</strong> {appointment.whatsapp}</p>
-                    {appointmentToDelete === appointment.id ? (
-                      <AppointmentConfirm>
-                        <p>Tem certeza que deseja excluir este agendamento?</p>
-                        <AppointmentActions>
-                          <AppointmentDeleteButton
-                            type="button"
-                            onClick={() => handleDeleteAppointment(appointment)}
-                            disabled={deletingAppointmentId === appointment.id}
-                          >
-                            {deletingAppointmentId === appointment.id ? 'Excluindo...' : 'Sim, excluir'}
-                          </AppointmentDeleteButton>
-                          <AppointmentDeleteButton
-                            type="button"
-                            $secondary
-                            onClick={() => setAppointmentToDelete(null)}
-                            disabled={deletingAppointmentId === appointment.id}
-                          >
-                            Cancelar
-                          </AppointmentDeleteButton>
-                        </AppointmentActions>
-                      </AppointmentConfirm>
-                    ) : (
-                      <AppointmentDeleteButton
-                        type="button"
-                        onClick={() => setAppointmentToDelete(appointment.id)}
-                        disabled={Boolean(deletingAppointmentId)}
-                      >
-                        Excluir agendamento
-                      </AppointmentDeleteButton>
-                    )}
-                  </AppointmentItem>
-                ))}
+                {activeAppointments.map(renderAppointment)}
               </AppointmentList>
+            )}
+            {appointmentsOnly && historyAppointments.length > 0 && (
+              <AppointmentHistory>
+                <summary>Histórico de agendamentos ({historyAppointments.length})</summary>
+                <AppointmentList>
+                  {historyAppointments.map(renderAppointment)}
+                </AppointmentList>
+              </AppointmentHistory>
             )}
             {appointmentsOnly ? (
               <ModeButton type="button" onClick={() => { window.location.hash = '#conta' }}>

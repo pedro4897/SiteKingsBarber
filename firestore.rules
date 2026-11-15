@@ -20,7 +20,10 @@ service cloud.firestore {
         && request.resource.data.whatsapp.size() >= 10
         && request.resource.data.whatsapp.size() <= 20
         && request.resource.data.status == 'pending'
-        && request.resource.data.createdAt is timestamp;
+        && request.resource.data.createdAt is timestamp
+        && (!('scheduledAt' in request.resource.data)
+          || (request.resource.data.scheduledAt is timestamp
+            && request.resource.data.scheduledAt > request.time));
     }
 
     function validLegacyAppointment() {
@@ -55,9 +58,121 @@ service cloud.firestore {
     }
 
     function isValidStatusUpdate() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
-        && request.resource.data.keys().hasAll(['status'])
-        && request.resource.data.status in ['accepted', 'rejected'];
+      let currentStatus = resource.data.get('status', 'pending');
+
+      return currentStatus == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status',
+          'rejectionReason'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'service',
+          'date',
+          'time',
+          'name',
+          'whatsapp',
+          'userId',
+          'status',
+          'createdAt',
+          'scheduledAt',
+          'rejectionReason'
+        ])
+        && request.resource.data.keys().hasAll([
+          'service',
+          'date',
+          'time',
+          'name',
+          'whatsapp',
+          'status',
+          'createdAt'
+        ])
+        && request.resource.data['service'] is string
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10
+        && request.resource.data.time is string
+        && request.resource.data.time.size() == 5
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.whatsapp is string
+        && request.resource.data.whatsapp.size() >= 10
+        && request.resource.data.whatsapp.size() <= 20
+        && request.resource.data.createdAt is timestamp
+        && (!('scheduledAt' in request.resource.data)
+          || request.resource.data.scheduledAt is timestamp)
+        && (!('userId' in request.resource.data)
+          || request.resource.data.userId == null
+          || request.resource.data.userId is string)
+        && (
+          (request.resource.data.status == 'accepted'
+            && !('rejectionReason' in request.resource.data))
+          || (request.resource.data.status == 'rejected'
+            && 'rejectionReason' in request.resource.data
+            && request.resource.data.rejectionReason is string
+            && request.resource.data.rejectionReason.size() > 0
+            && request.resource.data.rejectionReason.size() <= 500)
+        );
+    }
+
+    function isValidClientCancellation() {
+      return resource.data.status == 'accepted'
+        && request.resource.data.status == 'cancelled'
+        && (!('scheduledAt' in resource.data)
+          || resource.data.scheduledAt > request.time)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+    }
+
+    function isValidScheduleDay(dayId) {
+      let day = request.resource.data.days[dayId];
+      return day is map
+        && day.keys().hasOnly(['enabled', 'startHour', 'endHour'])
+        && day.keys().hasAll(['enabled', 'startHour', 'endHour'])
+        && day.enabled is bool
+        && day.startHour is int
+        && day.startHour >= 0
+        && day.startHour <= 23
+        && day.endHour is int
+        && day.endHour >= day.startHour
+        && day.endHour <= 23
+        && (!day.enabled || (day.endHour - day.startHour) % 2 == 0);
+    }
+
+    function isValidAvailability() {
+      let days = request.resource.data.days;
+      return request.resource.data.keys().hasOnly(['days', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['days', 'updatedAt'])
+        && request.resource.data.updatedAt is timestamp
+        && days is map
+        && days.keys().hasOnly([
+          'sunday',
+          'monday',
+          'tuesday',
+          'wednesday',
+          'thursday',
+          'friday',
+          'saturday'
+        ])
+        && days.keys().hasAll([
+          'sunday',
+          'monday',
+          'tuesday',
+          'wednesday',
+          'thursday',
+          'friday',
+          'saturday'
+        ])
+        && isValidScheduleDay('sunday')
+        && isValidScheduleDay('monday')
+        && isValidScheduleDay('tuesday')
+        && isValidScheduleDay('wednesday')
+        && isValidScheduleDay('thursday')
+        && isValidScheduleDay('friday')
+        && isValidScheduleDay('saturday');
+    }
+
+    match /settings/availability {
+      allow read: if request.auth != null;
+      allow create, update: if isBarber() && isValidAvailability();
     }
 
     match /appointments/{appointmentId} {
@@ -72,7 +187,8 @@ service cloud.firestore {
           'whatsapp',
           'userId',
           'status',
-          'createdAt'
+          'createdAt',
+          'scheduledAt'
         ])
         && request.resource.data.keys().hasAll([
           'service',
@@ -84,13 +200,15 @@ service cloud.firestore {
           'status',
           'createdAt'
         ])
-        && (
-          (request.auth == null && request.resource.data.userId == null)
-          || (request.auth != null && request.resource.data.userId == request.auth.uid)
-        );
-      allow update: if isBarber() && isValidStatusUpdate();
+        && request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if (isBarber() && isValidStatusUpdate())
+        || (request.auth != null
+          && resource.data.userId == request.auth.uid
+          && isValidClientCancellation());
       allow delete: if request.auth != null
-        && resource.data.userId == request.auth.uid;
+        && resource.data.userId == request.auth.uid
+        && resource.data.get('status', 'pending') == 'pending';
     }
 
     match /{path=**}/appointments/{appointmentId} {
@@ -100,7 +218,12 @@ service cloud.firestore {
 
     match /users/{userId}/appointments/{appointmentId} {
       allow read: if (request.auth != null && request.auth.uid == userId) || isBarber();
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null
+        && request.auth.uid == userId
+        && resource.data.get('status', 'pending') == 'pending';
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && isValidClientCancellation();
       allow create: if request.auth != null
         && request.auth.uid == userId
         && validLegacyAppointment();

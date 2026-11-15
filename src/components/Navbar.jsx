@@ -12,6 +12,7 @@ import {
   BrandName,
   Navigation,
   NavIcon,
+  NavCrown,
   NavLink,
   NavLinks,
   NavSword
@@ -23,7 +24,7 @@ const links = [
   { id: 'sobre-nos', label: 'Sobre Nós', href: '#sobre-nos', icon: AboutIcon },
   { id: 'conta', label: 'Conta', href: '#conta', icon: AccountIcon },
   { id: 'agendamentos', label: 'Agendamentos', href: '#agendamentos', icon: AppointmentsIcon },
-  { id: 'barbeiro', label: 'Barbeiro', href: '#barbeiro', icon: ServicesIcon, barberOnly: true }
+  { id: 'barbeiro', label: 'Barbeiro', href: '#barbeiro', crown: true, barberOnly: true }
 ]
 
 function Navbar({ activeRoute, isBarber }) {
@@ -39,9 +40,9 @@ function Navbar({ activeRoute, isBarber }) {
 
   return (
     <Navigation aria-label="Navegação principal">
-      <Brand href="#home" aria-label="KingsBarber - Home">
+      <Brand href="#home" aria-label="Kings Barber - Home">
         <BrandLogo src={LogoKings} alt="" />
-        <BrandName>KingsBarber</BrandName>
+        <BrandName>Kings Barber</BrandName>
       </Brand>
       <NavLinks>
         {links.filter((link) => !link.barberOnly || isBarber).map((link) => (
@@ -51,7 +52,11 @@ function Navbar({ activeRoute, isBarber }) {
             $active={activeRoute === link.id}
             aria-current={activeRoute === link.id ? 'page' : undefined}
           >
-            <NavIcon src={link.icon} alt="" $highlight={link.id === 'servicos'} />
+            {link.crown ? (
+              <NavCrown aria-hidden="true">👑</NavCrown>
+            ) : (
+              <NavIcon src={link.icon} alt="" $highlight={link.id === 'servicos'} />
+            )}
             {link.label}
           </NavLink>
         ))}

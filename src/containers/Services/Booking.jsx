@@ -1,8 +1,23 @@
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { addDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
-import { firebaseAuth, firebaseDb } from '../../firebase'
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  Timestamp,
+  where
+} from 'firebase/firestore'
+import { firebaseAuth, firebaseConfigError, firebaseDb } from '../../firebase'
 import LogoKings from '../Home/Logo Kings Barber.png'
+import Account from '../Account'
+import {
+  createDefaultAvailability,
+  getAvailableTimes,
+  isWorkingDay
+} from '../Barber/availability'
 import {
   AppointmentForm,
   ConfirmButton,
@@ -24,9 +39,6 @@ import {
   TimeGrid
 } from './styles'
 
-const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
-const storageKey = 'kingsbarber-appointments'
-
 function getDateValue(date) {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -40,15 +52,6 @@ function getAvailableDates() {
     date.setDate(date.getDate() + index + 1)
     return date
   })
-}
-
-function getSavedAppointments() {
-  try {
-    const appointments = JSON.parse(window.localStorage.getItem(storageKey) ?? '[]')
-    return Array.isArray(appointments) ? appointments : []
-  } catch {
-    return []
-  }
 }
 
 function formatPhone(value) {
@@ -72,15 +75,17 @@ function formatDate(dateValue) {
 }
 
 function Booking({ service }) {
-  const dates = getAvailableDates()
+  const [dates] = useState(getAvailableDates)
   const [selectedDate, setSelectedDate] = useState(getDateValue(dates[0]))
   const [selectedTime, setSelectedTime] = useState('')
   const [name, setName] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
-  const [appointments, setAppointments] = useState(getSavedAppointments)
   const [accountAppointments, setAccountAppointments] = useState([])
   const [user, setUser] = useState(firebaseAuth?.currentUser ?? null)
   const [isAuthReady, setIsAuthReady] = useState(!firebaseAuth)
+  const [availability, setAvailability] = useState(null)
+  const [isAvailabilityConfigured, setIsAvailabilityConfigured] = useState(false)
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(Boolean(firebaseAuth))
   const [confirmedAppointment, setConfirmedAppointment] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
   const [notice, setNotice] = useState('')
@@ -90,35 +95,93 @@ function Booking({ service }) {
       return undefined
     }
 
-    let unsubscribeAppointments
     const unsubscribeAuth = onAuthStateChanged(firebaseAuth, (currentUser) => {
       setUser(currentUser)
       setIsAuthReady(true)
       setNotice('')
-      unsubscribeAppointments?.()
-      setAccountAppointments([])
-
-      if (currentUser && firebaseDb) {
-        unsubscribeAppointments = onSnapshot(
-          collection(firebaseDb, 'users', currentUser.uid, 'appointments'),
-          (snapshot) => {
-            setAccountAppointments(snapshot.docs.map((document) => ({
-              id: document.id,
-              ...document.data()
-            })))
-          },
-          (error) => {
-            setNotice(`Não foi possível carregar os horários: ${error.message}`)
-          }
-        )
-      }
     })
 
     return () => {
       unsubscribeAuth()
-      unsubscribeAppointments?.()
     }
   }, [])
+
+  useEffect(() => {
+    if (!user || !firebaseDb) {
+      setAccountAppointments([])
+      setAvailability(null)
+      setIsAvailabilityConfigured(false)
+      setIsLoadingAvailability(false)
+      return undefined
+    }
+
+    setIsLoadingAvailability(true)
+    let sharedAppointments = []
+    let legacyAppointments = []
+    const updateAppointments = () => {
+      setAccountAppointments([...sharedAppointments, ...legacyAppointments])
+    }
+
+    const unsubscribeSharedAppointments = onSnapshot(
+      query(collection(firebaseDb, 'appointments'), where('userId', '==', user.uid)),
+      (snapshot) => {
+        sharedAppointments = snapshot.docs.map((document) => ({
+          id: document.id,
+          ...document.data()
+        }))
+        updateAppointments()
+      },
+      (error) => setNotice(`Não foi possível carregar os agendamentos: ${error.message}`)
+    )
+    const unsubscribeLegacyAppointments = onSnapshot(
+      collection(firebaseDb, 'users', user.uid, 'appointments'),
+      (snapshot) => {
+        legacyAppointments = snapshot.docs.map((document) => ({
+          id: document.id,
+          ...document.data()
+        }))
+        updateAppointments()
+      },
+      (error) => setNotice(`Não foi possível carregar os agendamentos antigos: ${error.message}`)
+    )
+    const unsubscribeAvailability = onSnapshot(
+      doc(firebaseDb, 'settings', 'availability'),
+      (snapshot) => {
+        setAvailability(snapshot.exists() ? snapshot.data() : createDefaultAvailability())
+        setIsAvailabilityConfigured(snapshot.exists())
+        setIsLoadingAvailability(false)
+      },
+      (error) => {
+        setAvailability(null)
+        setIsAvailabilityConfigured(false)
+        setIsLoadingAvailability(false)
+        setNotice(`Não foi possível carregar os horários disponíveis: ${error.message}`)
+      }
+    )
+
+    return () => {
+      unsubscribeSharedAppointments()
+      unsubscribeLegacyAppointments()
+      unsubscribeAvailability()
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (!availability) return
+
+    const currentDate = dates.find((date) => getDateValue(date) === selectedDate)
+    if (currentDate && !isWorkingDay(currentDate, availability)) {
+      const nextWorkingDate = dates.find((date) => isWorkingDay(date, availability))
+      if (nextWorkingDate) setSelectedDate(getDateValue(nextWorkingDate))
+      setSelectedTime('')
+    } else if (
+      currentDate
+      && selectedTime
+      && !getAvailableTimes(currentDate, availability).includes(selectedTime)
+    ) {
+      setSelectedTime('')
+    }
+  }, [availability, dates, selectedDate, selectedTime])
 
   const goBack = () => {
     window.location.hash = 'servicos'
@@ -127,28 +190,28 @@ function Booking({ service }) {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
+    if (!user || !firebaseDb) {
+      setNotice(firebaseConfigError || 'Entre na sua conta para solicitar um agendamento.')
+      return
+    }
+
     const appointment = {
       service: service.name,
       date: selectedDate,
       time: selectedTime,
       name: name.trim(),
-      whatsapp
+      whatsapp,
+      scheduledAt: Timestamp.fromDate(new Date(`${selectedDate}T${selectedTime}:00`))
     }
     setIsSaving(true)
     setNotice('')
     try {
-      if (firebaseDb) {
-        await addDoc(collection(firebaseDb, 'appointments'), {
-          ...appointment,
-          userId: user?.uid ?? null,
-          status: 'pending',
-          createdAt: serverTimestamp()
-        })
-      } else {
-        const updatedAppointments = [...appointments, appointment]
-        setAppointments(updatedAppointments)
-        window.localStorage.setItem(storageKey, JSON.stringify(updatedAppointments))
-      }
+      await addDoc(collection(firebaseDb, 'appointments'), {
+        ...appointment,
+        userId: user.uid,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      })
       setConfirmedAppointment(appointment)
     } catch (error) {
       setNotice(`Não foi possível salvar o agendamento: ${error.message}`)
@@ -156,6 +219,11 @@ function Booking({ service }) {
       setIsSaving(false)
     }
   }
+
+  const selectedDateObject = dates.find((date) => getDateValue(date) === selectedDate)
+  const availableTimes = availability && selectedDateObject
+    ? getAvailableTimes(selectedDateObject, availability)
+    : []
 
   return (
     <SchedulePage>
@@ -167,15 +235,15 @@ function Booking({ service }) {
       <ScheduleContent>
         <ScheduleTitle>
           {confirmedAppointment
-            ? firebaseDb ? 'Solicitação enviada' : 'Agendamento salvo localmente'
+            ? 'Solicitação enviada'
             : 'Escolha seu horário'}
         </ScheduleTitle>
         <ScheduleSubtitle>
           {confirmedAppointment
-            ? firebaseDb
-              ? 'A barbearia avaliará o pedido e atualizará o status.'
-              : 'Configure o Firebase para compartilhar pedidos com a barbearia.'
-            : 'Selecione uma data e um horário para continuar.'}
+            ? 'A barbearia avaliará o pedido e atualizará o status.'
+            : user
+              ? 'Selecione uma data e um horário para continuar.'
+              : 'Entre na sua conta para solicitar um horário e acompanhar a resposta da barbearia.'}
         </ScheduleSubtitle>
 
         <SelectionSummary>
@@ -185,43 +253,57 @@ function Booking({ service }) {
 
         {confirmedAppointment ? (
           <Confirmation>
-            <h2>
-              {firebaseDb
-                ? 'Solicitação enviada para a barbearia'
-                : 'Agendamento salvo neste dispositivo'}
-            </h2>
-            {!firebaseDb && (
-              <p role="alert">
-                Este pedido está salvo apenas neste dispositivo e não aparecerá para o barbeiro.
-                Configure o Firebase para compartilhar solicitações com a barbearia.
-              </p>
-            )}
+            <h2>Solicitação enviada para a barbearia</h2>
             <p><strong>Nome:</strong> {confirmedAppointment.name}</p>
             <p><strong>WhatsApp:</strong> {confirmedAppointment.whatsapp}</p>
             <p><strong>Data:</strong> {formatDate(confirmedAppointment.date)}</p>
             <p><strong>Horário:</strong> {confirmedAppointment.time}</p>
             <p><strong>Serviço:</strong> {confirmedAppointment.service}</p>
           </Confirmation>
+        ) : !isAuthReady ? (
+          <p role="status">Verificando sua conta...</p>
+        ) : !user ? (
+          <Confirmation>
+            <h2>Entre na sua conta para agendar</h2>
+            <p>Depois de entrar, você poderá acompanhar o status e o motivo de uma eventual recusa.</p>
+            <Account homeLogin />
+          </Confirmation>
+        ) : isLoadingAvailability ? (
+          <p role="status">Carregando os horários da barbearia...</p>
+        ) : !availability ? (
+          <Confirmation>
+            <h2>Agenda indisponível</h2>
+              <p role="alert">
+                {notice || 'Não foi possível carregar os dias e horários de atendimento.'}
+              </p>
+          </Confirmation>
         ) : (
           <>
+              {!isAvailabilityConfigured && (
+                <p role="status">
+                  Horário padrão: todos os dias, das 09:00 às 17:00. O barbeiro pode personalizar a agenda.
+                </p>
+              )}
             <ScheduleSection>
               <SectionTitle>Data</SectionTitle>
               <DateGrid>
                 {dates.map((date) => {
                   const dateValue = getDateValue(date)
                   const weekday = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' }).format(date)
+                  const isWorking = isWorkingDay(date, availability)
                   return (
                     <DateButton
                       key={dateValue}
                       type="button"
                       $selected={selectedDate === dateValue}
                       aria-pressed={selectedDate === dateValue}
+                      disabled={!isWorking}
                       onClick={() => {
                         setSelectedDate(dateValue)
                         setSelectedTime('')
                       }}
                     >
-                      <span>{weekday}</span>
+                      <span>{isWorking ? weekday : 'Fechado'}</span>
                       <strong>{date.getDate()}</strong>
                     </DateButton>
                   )
@@ -231,15 +313,17 @@ function Booking({ service }) {
 
             <ScheduleSection>
               <SectionTitle>Horários disponíveis</SectionTitle>
-              <TimeGrid>
-                {timeSlots.map((time) => {
-                  const isBookedLocally = appointments.some(
-                    (appointment) => appointment.date === selectedDate && appointment.time === time
-                  )
+              {availableTimes.length === 0 ? (
+                <p>Não há horários disponíveis neste dia.</p>
+              ) : (
+                <TimeGrid>
+                  {availableTimes.map((time) => {
                   const isBookedByAccount = accountAppointments.some(
-                    (appointment) => appointment.date === selectedDate && appointment.time === time
+                    (appointment) => appointment.date === selectedDate
+                      && appointment.time === time
+                      && ['pending', 'accepted'].includes(appointment.status ?? 'pending')
                   )
-                  const isBooked = isBookedLocally || isBookedByAccount
+                  const isBooked = isBookedByAccount
                   return (
                     <TimeButton
                       key={time}
@@ -252,8 +336,9 @@ function Booking({ service }) {
                       {isBooked ? 'Indisponível' : time}
                     </TimeButton>
                   )
-                })}
-              </TimeGrid>
+                  })}
+                </TimeGrid>
+              )}
             </ScheduleSection>
 
             <AppointmentForm onSubmit={handleSubmit}>
@@ -280,7 +365,7 @@ function Booking({ service }) {
                   required
                 />
               </FormField>
-              <ConfirmButton type="submit" disabled={!selectedTime || isSaving || !isAuthReady}>
+              <ConfirmButton type="submit" disabled={!selectedTime || isSaving || !isAuthReady || !user}>
                 {isSaving ? 'Salvando...' : 'Confirmar agendamento'}
               </ConfirmButton>
             </AppointmentForm>

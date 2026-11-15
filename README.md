@@ -6,7 +6,9 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 A conta `pedro123@gmail.com` pode acessar **Barbeiro** pela navegação após entrar. Para usar a área, publique as regras de [firestore.rules](./firestore.rules) no Firebase; elas permitem que somente essa conta consulte e atualize as solicitações. Se trocar a conta do barbeiro, atualize o e-mail em `src/containers/Barber/access.js` e em `firestore.rules`.
 
-Agendamentos feitos com o Firebase configurado são salvos em uma coleção compartilhada e aparecem na área do barbeiro, inclusive pedidos de clientes sem login. A área também consulta as subcoleções antigas de agendamentos. Sem configuração do Firebase, os pedidos ficam apenas no dispositivo e não podem ser gerenciados pela barbearia.
+Para agendar, o cliente precisa entrar ou criar uma conta. Os pedidos são salvos em uma coleção compartilhada e aparecem na área do barbeiro; a área também consulta as subcoleções antigas de agendamentos. O cliente pode cancelar um agendamento aceito antes do horário marcado.
+
+O horário inicial é todos os dias, das 09:00 às 17:00, em intervalos de duas horas. O barbeiro pode personalizar os dias de trabalho e o primeiro e último horário de atendimento de cada dia. Solicitações recusadas e canceladas ficam em um histórico recolhido tanto para o barbeiro quanto para o cliente. O motivo da recusa aparece no histórico do cliente; cancelar um agendamento aceito antes do início libera o horário.
 
 Currently, two official plugins are available:
 

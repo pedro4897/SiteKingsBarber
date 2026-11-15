@@ -178,6 +178,23 @@ export const NavIcon = styled.img`
   }
 `
 
+export const NavCrown = styled.span`
+  display: block;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex: 0 0 auto;
+  font-size: 1.35rem;
+  line-height: 1.55rem;
+  text-align: center;
+
+  @media (max-width: 700px) {
+    width: 1.2rem;
+    height: 1.2rem;
+    font-size: 1rem;
+    line-height: 1.2rem;
+  }
+`
+
 export const NavSword = styled.img`
   position: absolute;
   z-index: 0;

@@ -86,6 +86,16 @@ export const AppointmentList = styled.div`
   margin-top: 1.5rem;
 `
 
+export const AppointmentHistory = styled.details`
+  margin-top: 1.5rem;
+
+  > summary {
+    color: #f4d48a;
+    cursor: pointer;
+    font-weight: 700;
+  }
+`
+
 export const AppointmentItem = styled.article`
   display: grid;
   gap: 0.3rem;

@@ -14,9 +14,11 @@ import {
 import LogoKings from './Logo Kings Barber.png'
 import Banner from '../../assets/banner.jpg'
 import Account from '../Account'
+import { isBarberAccount } from '../Barber/access'
 
 function Home({ user }) {
   const displayName = user?.displayName || user?.email || 'cliente'
+  const isAdministrator = isBarberAccount(user)
 
   return (
     <Background id="home" $loggedIn={Boolean(user)}>
@@ -35,11 +37,15 @@ function Home({ user }) {
 
         <RightPanel $loggedIn={Boolean(user)}>
           <HomeIntro $loggedIn={Boolean(user)}>
-            <Title>{user ? `Bem-vindo, ${displayName}!` : 'KingsBarber'}</Title>
+            <Title>
+              {isAdministrator
+                ? 'Bem Vindo, Administrador'
+                : user ? `Bem-vindo, ${displayName}!` : 'Kings Barber'}
+            </Title>
             <p>
               {user
-                ? 'Que bom ter você por aqui. Prepare-se para renovar o visual com a gente.'
-                : 'Bem-vindo à KingsBarber: estilo e atitude em cada detalhe. Conheça nossos serviços e aproveite um atendimento de alto nível.'}
+                ? 'Que bom ter você por aqui profissional!. Aproveite para gerenciar seus serviços e clientes com facilidade.'
+                : 'Bem-vindo à Kings Barber: estilo e atitude em cada detalhe. Conheça nossos serviços e aproveite um atendimento de alto nível.'}
             </p>
           </HomeIntro>
           {user ? (
